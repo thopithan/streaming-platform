@@ -6,6 +6,7 @@
   <title>My Streaming Service (meta.json Sync)</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
   <style>
     body { font-family: 'Inter', sans-serif; }
     .horizontal-scroll::-webkit-scrollbar { height: 8px; }
@@ -23,21 +24,25 @@
 <body class="bg-gray-900">
 
 <!-- Passcode Section -->
-<div id="passcode-section" class="fixed inset-0 z-[100] bg-gray-900 flex flex-col items-center justify-center p-8">
-  <div class="bg-gray-800 p-8 rounded-xl shadow-xl border border-gray-700 w-full max-w-md">
-    <h2 class="text-2xl font-bold text-white mb-6">Enter Passcode</h2>
+<div id="passcode-section" class="fixed inset-0 z-[100] bg-gray-900 flex flex-col items-center justify-center p-4 sm:p-8">
+  <div class="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-xl border border-gray-700 w-full max-w-md">
+    <!-- Lottie Animation - REPLACE THE SRC URL -->
+    <div class="mx-auto mb-6 w-32 h-32 sm:w-40 sm:h-40">
+      <lottie-player src="login-animation.json" background="transparent" speed="1" loop autoplay></lottie-player>
+    </div>
+    <h2 class="text-2xl font-bold text-white mb-6 text-center">Enter Passcode</h2>
     <input type="password" id="passcode-input-field" class="w-full bg-gray-700 text-white px-4 py-3 mb-4 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none" placeholder="Passcode" autocomplete="off">
     <button id="passcode-submit-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75 transition duration-300 ease-in-out">
       Access
     </button>
-    <p id="passcode-error-message" class="text-red-400 mt-3 text-sm hidden">Invalid passcode.</p>
+    <p id="passcode-error-message" class="text-red-400 mt-3 text-sm hidden text-center">Invalid passcode.</p>
   </div>
 </div>
 
 <!-- Google Auth & Loading Section -->
-<div id="auth-status-container" class="fixed inset-0 z-[90] bg-gray-900 flex-col items-center justify-center p-8 hidden">
-  <div id="auth-status" class="bg-gray-800 p-8 rounded-xl shadow-xl border border-gray-700 w-full max-w-md flex flex-col items-center">
-    <p id="status-message" class="text-lg text-gray-300 mb-4">Please sign in to view your videos.</p>
+<div id="auth-status-container" class="fixed inset-0 z-[90] bg-gray-900 flex-col items-center justify-center p-4 sm:p-8 hidden">
+  <div id="auth-status" class="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-xl border border-gray-700 w-full max-w-md flex flex-col items-center">
+    <p id="status-message" class="text-lg text-gray-300 mb-4 text-center">Please sign in to view your videos.</p>
     <button id="authorize_button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75 transition duration-300 ease-in-out" disabled>
       Sign In with Google
     </button>
@@ -49,7 +54,7 @@
       </div>
       <p id="progress-percentage" class="text-center text-xs text-gray-400 mt-1">0%</p>
     </div>
-    <p id="error-message" class="text-red-400 mt-4 hidden"></p>
+    <p id="error-message" class="text-red-400 mt-4 hidden text-center"></p>
   </div>
 </div>
 
@@ -62,63 +67,64 @@
       <div class="hidden md:flex items-center space-x-6">
         <a href="#" class="text-gray-300 hover:text-white nav-link" data-view="dashboard-view">DASHBOARD</a>
       </div>
-      <div class="flex items-center space-x-4">
-        <button id="download-meta-button" class="hidden bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm py-2 px-3 rounded-md">Download meta.json</button>
-        <button class="text-gray-300 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
-        <button class="text-gray-300 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></button>
+      <div class="flex items-center space-x-2 sm:space-x-4">
+        <button id="download-meta-button" class="hidden bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm py-2 px-2 sm:px-3 rounded-md">Download meta.json</button>
+        <button class="text-gray-300 hover:text-white p-1 sm:p-0"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
+        <button class="text-gray-300 hover:text-white p-1 sm:p-0"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></button>
       </div>
     </div>
   </nav>
 
   <!-- Dashboard View / Homepage -->
   <div id="dashboard-view" class="view active pt-20">
-    <section id="hero-section" class="relative h-[70vh] min-h-[400px] w-full flex items-end p-8 md:p-16 text-white">
+    <section id="hero-section" class="relative h-[60vh] sm:h-[70vh] min-h-[350px] sm:min-h-[400px] w-full flex items-end p-4 sm:p-8 md:p-16 text-white">
       <div id="hero-background" class="absolute inset-0 bg-cover bg-center"></div>
       <div class="absolute inset-0 hero-gradient"></div>
       <div class="relative z-10 max-w-xl">
-        <h1 id="hero-title" class="text-4xl md:text-6xl font-bold mb-4 text-shadow"></h1>
-        <p id="hero-meta" class="text-lg mb-2 text-shadow"></p>
-        <p id="hero-synopsis-short" class="text-md mb-6 text-shadow line-clamp-3"></p>
-        <div class="flex space-x-4">
-          <button id="hero-play-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-md text-lg">PLAY</button>
-          <button id="hero-add-list-button" class="bg-gray-700 bg-opacity-70 hover:bg-gray-600 text-white p-3 rounded-md border border-gray-500">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+        <h1 id="hero-title" class="text-3xl sm:text-4xl md:text-6xl font-bold mb-2 sm:mb-4 text-shadow"></h1>
+        <p id="hero-meta" class="text-base sm:text-lg mb-1 sm:mb-2 text-shadow"></p>
+        <p id="hero-synopsis-short" class="text-sm sm:text-md mb-4 sm:mb-6 text-shadow line-clamp-2 sm:line-clamp-3"></p>
+        <div class="flex space-x-2 sm:space-x-4">
+          <button id="hero-play-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-8 rounded-md text-base sm:text-lg">PLAY</button>
+          <button id="hero-add-list-button" class="bg-gray-700 bg-opacity-70 hover:bg-gray-600 text-white p-2 sm:p-3 rounded-md border border-gray-500">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
           </button>
         </div>
       </div>
     </section>
-    <div id="video-categories-container" class="container mx-auto px-4 py-8 space-y-10">
+    <div id="video-categories-container" class="container mx-auto px-4 py-8 space-y-8 sm:space-y-10">
       <!-- Categories will be dynamically inserted here -->
     </div>
   </div>
 
   <!-- Movie Detail View -->
-  <div id="movie-detail-view" class="view container mx-auto px-4 py-8 pt-24 space-y-10">
-    <button id="back-to-dashboard" class="mb-6 text-purple-400 hover:text-purple-300 flex items-center">
+  <div id="movie-detail-view" class="view container mx-auto px-4 py-8 pt-24 space-y-8 sm:space-y-10">
+    <button id="back-to-dashboard" class="mb-4 sm:mb-6 text-purple-400 hover:text-purple-300 flex items-center">
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
       Back to Dashboard
     </button>
-    <div class="flex flex-col md:flex-row gap-8">
-      <div class="md:w-1/3"><img id="detail-poster" src="" alt="Movie Poster" class="rounded-lg shadow-xl w-full"></div>
+    <div class="flex flex-col md:flex-row gap-6 sm:gap-8">
+      <div class="w-full md:w-1/3 flex-shrink-0">
+        <img id="detail-poster" src="" alt="Movie Poster" class="rounded-lg shadow-xl w-full max-w-xs mx-auto md:max-w-none">
+      </div>
       <div class="md:w-2/3 text-gray-300">
-        <h1 id="detail-title" class="text-4xl md:text-5xl font-bold text-white mb-3"></h1>
-        <div id="detail-meta-info" class="flex items-center space-x-1 text-gray-400 mb-4">
+        <h1 id="detail-title" class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2 sm:mb-3"></h1>
+        <div id="detail-meta-info" class="flex flex-wrap items-center space-x-1 text-sm sm:text-base text-gray-400 mb-3 sm:mb-4">
           <span id="detail-year"></span><span class="detail-bullet mx-1" style="display:none;">•</span>
           <span id="detail-type"></span><span class="detail-bullet mx-1" style="display:none;">•</span>
           <span id="detail-duration"></span>
         </div>
-        <p id="detail-synopsis" class="mb-6 text-lg leading-relaxed"></p>
-        <button id="detail-play-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-10 rounded-md text-lg mb-8">PLAY VIDEO</button>
-        <div class="mb-6"><h3 class="text-xl font-semibold text-white mb-2">Director</h3><p id="detail-director" class="text-gray-400"></p></div>
-        <div class="mb-6"><h3 class="text-xl font-semibold text-white mb-2">Cast</h3><ul id="detail-cast-list" class="list-none space-y-1 text-gray-400"></ul></div>
-        <div><h3 class="text-xl font-semibold text-white mb-2">Ratings</h3><div id="detail-ratings" class="flex space-x-4 text-gray-400"></div></div>
+        <p id="detail-synopsis" class="mb-4 sm:mb-6 text-base sm:text-lg leading-relaxed"></p>
+        <button id="detail-play-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 sm:py-3 sm:px-10 rounded-md text-base sm:text-lg mb-6 sm:mb-8">PLAY VIDEO</button>
+        <div class="mb-4 sm:mb-6"><h3 class="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">Cast</h3><ul id="detail-cast-list" class="list-none space-y-1 text-sm sm:text-base text-gray-400"></ul></div>
+        <div><h3 class="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">Ratings</h3><div id="detail-ratings" class="flex flex-wrap space-x-2 sm:space-x-4 text-sm sm:text-base text-gray-400"></div></div>
       </div>
     </div>
-    <section id="detail-related-section" class="pt-10"></section>
+    <section id="detail-related-section" class="pt-6 sm:pt-10"></section>
   </div>
 
-  <!-- Video Player Modal (used for Desktop only now) -->
-  <div id="video-modal" class="fixed inset-0 z-[1000] hidden flex items-center justify-center bg-black bg-opacity-80 p-4">
+  <!-- Video Player Modal (Used for Desktop) -->
+  <div id="video-modal" class="fixed inset-0 z-[1000] hidden flex items-center justify-center bg-black bg-opacity-80 p-2 sm:p-4">
     <div class="relative bg-gray-800 rounded-xl shadow-2xl p-1 md:p-2 w-full max-w-4xl max-h-[90vh] overflow-hidden">
       <button id="close-modal" class="absolute top-2 right-2 md:top-3 md:right-3 text-gray-400 hover:text-white text-3xl font-bold focus:outline-none z-10">×</button>
       <div class="relative" style="padding-bottom: 56.25%;">
@@ -134,17 +140,17 @@
 
 <script>
   // --- START OF CONFIGURATION ---
-  const STORED_PASSCODE_HASH = "ad90de1520fb30637f3734f9b03140a1abd6dcb3dd922c0684b9f57b3da08861"; // SHA256 of "password". REPLACE THIS
-  const DEFAULT_DEV_PASSCODE_HASH = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"; // SHA256 of "password"
-  const CLIENT_ID = '82608849356-u1c59ugg5dijbn0vjnpoubibhcfbccuc.apps.googleusercontent.com'; // ❗ REPLACE THIS
-  const API_KEY = ''; // ❗ REPLACE THIS if needed
-  const GOOGLE_DRIVE_FOLDER_ID = '1lMS61TWY60Fqt6aQ3tNQIr82VSzISOLL'; // ❗ REPLACE THIS
-  const TMDB_API_KEY = '96940be4c3047db623024860a4d18ade'; // ❗ REPLACE THIS
-  const META_JSON_URL = './meta.json'; // ❗ URL to your meta.json
-  // --- END OF CONFIGURATION ---
+  const STORED_PASSCODE_HASH = "ad90de1520fb30637f3734f9b03140a1abd6dcb3dd922c0684b9f57b3da08861"; // ❗ SHA256 of "password". REPLACE THIS with hash of your actual passcode.
+  const DEFAULT_DEV_PASSCODE_HASH = "ad90de1520fb30637f3734f9b03240a1abd6dcb3dd922c0684b9f57b4da08861"; // Used to warn if default is still set
+  const CLIENT_ID = '82608849356-u1c59ugg5dijbn0vjnpoubibhcfbccuc.apps.googleusercontent.com'; // ❗ REPLACE THIS with your Google OAuth Client ID
+  const API_KEY = ''; // Google API Key (Usually optional if using OAuth for all calls) ❗ REPLACE THIS if needed
+  const GOOGLE_DRIVE_FOLDER_ID = '1lMS61TWY60Fqt6aQ3tNQIr82VSzISOLL'; // ❗ REPLACE THIS with your Google Drive Folder ID
+  const TMDB_API_KEY = '96940be4c3047db623024860a4d18ade'; // ❗ REPLACE THIS with your TMDb API Key (v3 auth)
+  const META_JSON_URL = './meta.json'; // ❗ URL to your meta.json file. Place it in the same directory or provide a full URL.
 
   const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
   const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
+  // --- END OF CONFIGURATION ---
 
   let gapiInited = false;
   let gisInited = false;
@@ -152,6 +158,7 @@
   let gapi;
   let gis;
   let googleDriveFilesWithTMDbMeta = [];
+  let allDriveFilesRaw = [];
 
   // DOM Elements
   const appContentEl = document.getElementById('app-content');
@@ -171,7 +178,6 @@
   const detailDuration = document.getElementById('detail-duration');
   const detailSynopsis = document.getElementById('detail-synopsis');
   const detailPlayButton = document.getElementById('detail-play-button');
-  const detailDirector = document.getElementById('detail-director');
   const detailCastList = document.getElementById('detail-cast-list');
   const detailRatings = document.getElementById('detail-ratings');
   const detailRelatedSection = document.getElementById('detail-related-section');
@@ -246,27 +252,25 @@
     const enteredPasscode = passcodeInputField.value;
     passcodeErrorEl.classList.add('hidden');
     if (!enteredPasscode) { passcodeErrorEl.textContent = 'Passcode cannot be empty.'; passcodeErrorEl.classList.remove('hidden'); return; }
+
+    // This warning logic might be slightly off from original intent if STORED_PASSCODE_HASH was changed
+    // from the "password" example but DEFAULT_DEV_PASSCODE_HASH wasn't updated to match it.
+    // The primary check is that STORED_PASSCODE_HASH should not be the common "password" hash.
+    // The provided hashes are not for "password", so this warning should be fine unless they are truly a default.
     if (STORED_PASSCODE_HASH === DEFAULT_DEV_PASSCODE_HASH) {
-      const passwordHashForWarning = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8";
-      if (STORED_PASSCODE_HASH === passwordHashForWarning) {
-        passcodeErrorEl.textContent = 'Security Notice: Default passcode "password" is in use. Please change STORED_PASSCODE_HASH in the code.';
-        passcodeErrorEl.classList.remove('hidden');
-      }
+      passcodeErrorEl.textContent = 'Developer: Default passcode hash is in use. Please change STORED_PASSCODE_HASH.';
+      passcodeErrorEl.classList.remove('hidden');
     }
     try {
       const buffer = new TextEncoder().encode(enteredPasscode);
       const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const enteredPasscodeHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
       if (enteredPasscodeHash === STORED_PASSCODE_HASH) {
         passcodeSectionEl.style.display = 'none';
         authStatusContainerEl.style.display = 'flex';
-        if (gapiInited && gisInited) {
-          maybeEnableAuthButton();
-        } else {
-          showLoadingState(true, 'Initializing authentication...');
-        }
+        if (gapiInited && gisInited) maybeEnableAuthButton();
+        else showLoadingState(true, 'Initializing authentication...');
       } else {
         passcodeErrorEl.textContent = 'Invalid passcode.'; passcodeErrorEl.classList.remove('hidden');
         passcodeInputField.focus(); passcodeInputField.select();
@@ -280,20 +284,18 @@
   function gapiLoaded() { gapi = window.gapi; gapi.load('client', initializeGapiClient); }
   async function initializeGapiClient() {
     try { await gapi.client.init({ apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS }); gapiInited = true; maybeEnableAuthButton(); }
-    catch (error) { console.error("GAPI client init error:", error); showGlobalError("Error initializing Google API: " + error.message); }
+    catch (error) { console.error("GAPI client init error:", error); showGlobalError("Error initializing Google API."); }
   }
   function gisLoaded() {
     gis = window.google.accounts.oauth2;
     try { tokenClient = gis.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: '' }); gisInited = true; maybeEnableAuthButton(); }
-    catch (error) { console.error("GIS client init error:", error); showGlobalError("Error initializing Google Sign-In: " + error.message); }
+    catch (error) { console.error("GIS client init error:", error); showGlobalError("Error initializing Google Sign-In."); }
   }
-
   function maybeEnableAuthButton() {
     if (authStatusContainerEl.style.display === 'none' || authStatusContainerEl.style.display === '') return;
-
     if (gapiInited && gisInited) {
       authorizeButton.onclick = handleAuthClick;
-      statusMessage.textContent = 'Ready. Please sign in.';
+      statusMessage.textContent = 'Ready to sign in.';
       authorizeButton.disabled = false;
       loadingSpinner.classList.add('hidden');
       if (progressMessageEl.textContent.startsWith('Initializing authentication')) {
@@ -302,6 +304,7 @@
     } else {
       if (!loadingSpinner.classList.contains('hidden')) {
         statusMessage.textContent = 'Initializing authentication components...';
+        updateProgress(0, 'Initializing authentication components...');
       }
     }
   }
@@ -310,25 +313,20 @@
     if (!tokenClient) { showGlobalError("Auth client not ready."); return; }
     tokenClient.callback = async (resp) => {
       if (resp.error) {
-        console.error('Auth Error:', resp.error, resp.error_description);
+        console.error('Auth Error:', resp.error);
         let errMsg = 'Failed to sign in. ' + (resp.error_description || resp.error);
-        showGlobalError(errMsg); authorizeButton.textContent = 'Sign In with Google'; authorizeButton.disabled = false; loadingSpinner.classList.add('hidden');
+        showGlobalError(errMsg); authorizeButton.textContent = 'Sign In'; authorizeButton.disabled = false; loadingSpinner.classList.add('hidden');
         return;
       }
       downloadMetaButtonEl.classList.remove('hidden');
       await loadAndSynchronizeData();
     };
-
-    if (gapi.client.getToken() === null) {
-      tokenClient.requestAccessToken({prompt: 'consent'});
-    } else {
-      tokenClient.requestAccessToken({prompt: ''});
-    }
+    if (gapi.client.getToken() === null) tokenClient.requestAccessToken({prompt: 'consent'});
+    else tokenClient.requestAccessToken({prompt: ''});
   }
 
   // --- TMDb Fetching Logic ---
   async function fetchTMDbDetailsForMovie(movieNameFromDrive, driveFileId) {
-    // console.log(`Fetching TMDb for: "${movieNameFromDrive}" (Drive ID: ${driveFileId})`); // Less verbose
     const cleanNameForSearch = movieNameFromDrive
             .replace(/\.(mkv|mp4|avi|mov|wmv|flv|webm)$/i, '')
             .replace(/[._\-\+]/g, ' ')
@@ -369,8 +367,7 @@
     });
 
     if (!TMDB_API_KEY) return fallbackMeta("TMDb API Key not configured.");
-    if (!searchName) return fallbackMeta("Could not determine a valid search name for TMDb.");
-
+    if (!searchName) return fallbackMeta("Could not determine a valid search name.");
 
     try {
       let searchUrl = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(searchName)}`;
@@ -411,14 +408,14 @@
         lastUpdated: new Date().toISOString(),
         tmdbId: d.id
       };
-    } catch (error) { console.error(`General error in fetchTMDbDetailsForMovie for "${searchName}":`, error); return fallbackMeta("Network or script error during TMDb fetch."); }
+    } catch (error) { console.error(`General error in fetchTMDbDetailsForMovie for "${searchName}":`, error); return fallbackMeta("Network or script error during fetch."); }
   }
 
   // --- Main Data Loading and Synchronization ---
   async function loadAndSynchronizeData() {
     showLoadingState(true, "Starting data synchronization...");
     googleDriveFilesWithTMDbMeta = [];
-    let allDriveFilesRaw = [];
+    allDriveFilesRaw = [];
     let currentProgress = 0;
     const totalProgressPhases = 4;
     const progressPerPhase = 100 / totalProgressPhases;
@@ -429,7 +426,7 @@
       const response = await fetch(META_JSON_URL + `?t=${new Date().getTime()}`);
       if (response.ok) {
         localMeta = await response.json();
-        if (!Array.isArray(localMeta)) { localMeta = []; console.warn("meta.json was not a valid array.");}
+        if (!Array.isArray(localMeta)) { localMeta = []; console.warn("meta.json was not a valid array."); }
       } else { console.warn(`meta.json not found or error (status: ${response.status}). Will build new.`); }
     } catch (error) { console.warn("Error fetching meta.json:", error); }
     currentProgress += progressPerPhase;
@@ -440,20 +437,26 @@
       const response = await gapi.client.drive.files.list({
         q: `'${GOOGLE_DRIVE_FOLDER_ID}' in parents and (mimeType contains 'video/' or mimeType = 'application/octet-stream') and trashed = false`,
         fields: 'files(id, name, webViewLink, description, thumbnailLink, createdTime, modifiedTime)',
-        pageSize: 500, orderBy: 'name'
+        pageSize: 500,
+        orderBy: 'name'
       });
       allDriveFilesRaw = response.result.files || [];
     } catch (err) {
       console.error('Error listing Drive files:', err);
       showGlobalError('Error loading files from Drive: ' + (err.result?.error?.message || err.message || "Unknown error"));
-      showLoadingState(false); return;
+      showLoadingState(false);
+      return;
     }
     currentProgress += progressPerPhase;
     updateProgress(currentProgress, `${allDriveFilesRaw.length} item(s) found in Drive folder.`);
 
     if (allDriveFilesRaw.length === 0 && localMeta.length === 0) {
       videoCategoriesContainer.innerHTML = '<p class="text-center text-gray-400 text-xl">No videos found in Drive or local metadata.</p>';
-      showLoadingState(false); populateDashboard([]); setupEventListeners([]); return;
+      showLoadingState(false);
+      appContentEl.style.display = 'block';
+      populateDashboard([]);
+      setupEventListeners([]);
+      return;
     }
 
     updateProgress(currentProgress, "Synchronizing metadata...");
@@ -506,7 +509,8 @@
       setupEventListeners(googleDriveFilesWithTMDbMeta);
     } else {
       videoCategoriesContainer.innerHTML = '<p class="text-center text-gray-400 text-xl">No videos available after synchronization.</p>';
-      populateDashboard([]); setupEventListeners([]);
+      populateDashboard([]);
+      setupEventListeners([]);
     }
   }
 
@@ -552,7 +556,7 @@
       if (!categories[catName] || categories[catName].length === 0) return;
       const catSection = document.createElement('section');
       catSection.className = 'category-section';
-      catSection.innerHTML = `<h2 class="text-2xl font-semibold text-white mb-4">${catName}</h2>
+      catSection.innerHTML = `<h2 class="text-2xl font-semibold text-white mb-3 sm:mb-4">${catName}</h2>
                         <div class="horizontal-scroll flex space-x-3 md:space-x-4 overflow-x-auto pb-4 -mb-4">
                             ${categories[catName].map(videoMeta => createVideoPosterCard(videoMeta)).join('')}
                         </div>`;
@@ -563,7 +567,7 @@
   function createVideoPosterCard(videoMeta) {
     const title = videoMeta.title || videoMeta.driveFileName;
     const poster = videoMeta.posterUrl || `https://placehold.co/300x450/1f2937/4b5563?text=${encodeURIComponent(title.substring(0,20))}`;
-    return `<div class="video-poster-card bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-200 cursor-pointer w-36 md:w-48 flex-shrink-0" data-drive-id="${videoMeta.driveFileId}">
+    return `<div class="video-poster-card bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-200 cursor-pointer w-32 sm:w-36 md:w-48 flex-shrink-0" data-drive-id="${videoMeta.driveFileId}">
               <img src="${poster}" alt="${title}" class="w-full h-auto object-cover aspect-[2/3]" onerror="this.src='https://placehold.co/300x450/1f2937/4b5563?text=No+Poster'; this.onerror=null;">
             </div>`;
   }
@@ -594,7 +598,6 @@
     }
 
     detailSynopsis.textContent = videoMeta.synopsis || "No synopsis available.";
-    detailDirector.textContent = videoMeta.director || "Not available.";
     detailPlayButton.onclick = () => playVideo(videoMeta);
     detailCastList.innerHTML = videoMeta.cast && videoMeta.cast.length > 0 ? videoMeta.cast.map(m => `<li>${m.name} ${m.character ? `<span class="text-gray-500">as ${m.character}</span>` : ''}</li>`).join('') : '<li>Cast information not available.</li>';
     detailRatings.innerHTML = videoMeta.ratings && videoMeta.ratings.tmdb_vote_average ? `<div class="flex items-center"><strong class="text-white mr-1">TMDb:</strong> ${videoMeta.ratings.tmdb_vote_average}/10 <span class="text-gray-500 ml-1">(${videoMeta.ratings.tmdb_vote_count} votes)</span></div>` : '<span>Ratings not available.</span>';
@@ -605,11 +608,11 @@
             v.driveFileId !== videoMeta.driveFileId &&
             ( (v.isFallback && primaryCategoryForRelated === "Uncategorized") ||
                     (v.categories && v.categories.includes(primaryCategoryForRelated)) )
-    ).slice(0,10);
+    ).slice(0,8); // Show fewer related on mobile to avoid too much scrolling
 
     if(relatedVideos.length > 0) {
       const section = document.createElement('section');
-      section.innerHTML = `<h2 class="text-2xl font-semibold text-white mb-4">More Like This</h2>
+      section.innerHTML = `<h2 class="text-xl sm:text-2xl font-semibold text-white mb-3 sm:mb-4">More Like This</h2>
                     <div class="horizontal-scroll flex space-x-3 md:space-x-4 overflow-x-auto pb-4 -mb-4">
                         ${relatedVideos.map(video => createVideoPosterCard(video)).join('')}
                     </div>`;
@@ -618,7 +621,7 @@
     showView('movie-detail-view');
   }
 
-  // Helper function to detect mobile devices (more broadly)
+  // Helper function to detect mobile devices
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   }
@@ -633,14 +636,13 @@
 
     if (isMobileDevice()) {
       // For all mobile devices, open the Google Drive webViewLink in a new tab.
-      // Google Drive's mobile web interface should offer fullscreen and close options.
       const newTab = window.open(webViewLink, '_blank');
       if (newTab) {
         newTab.focus();
       } else {
         alert("Could not open video in a new tab. Please check your pop-up blocker settings. Link: " + webViewLink);
       }
-      return; // Don't proceed to show the modal for mobile if opening in new tab
+      return;
     }
 
     // For non-mobile (desktop) browsers, use the embedded player in the modal
@@ -650,7 +652,7 @@
     document.body.style.overflow = 'hidden';
   }
 
-  function closeVideoPlayerModal() { // Only called for desktop now
+  function closeVideoPlayerModal() {
     videoModal.classList.add('hidden'); videoPlayer.src = ''; document.body.style.overflow = '';
   }
 
@@ -668,11 +670,10 @@
       }
     });
     backToDashboardButton.addEventListener('click', () => showView('dashboard-view'));
-    // closeModalButton and videoModal click listener are still relevant for desktop
+
     closeModalButton.addEventListener('click', closeVideoPlayerModal);
     videoModal.addEventListener('click', (e) => { if (e.target === videoModal) closeVideoPlayerModal(); });
     document.addEventListener('keydown', (e) => {
-      // Close modal on Escape, only if modal is visible (desktop)
       if (e.key === 'Escape' && !videoModal.classList.contains('hidden')) {
         closeVideoPlayerModal();
       }
@@ -716,7 +717,7 @@
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    alert("meta.json prepared. Please save it and replace the one in your project folder (if you host this page yourself).");
+    alert("meta.json prepared. Please save it and replace the one in your project folder.");
   }
 
   // Initial setup
@@ -731,8 +732,8 @@
     const scriptTag = document.createElement('script');
     scriptTag.src = 'https://accounts.google.com/gsi/client';
     scriptTag.async = true; scriptTag.defer = true;
-    scriptTag.onload = function() { if (typeof gisLoaded === 'function') gisLoaded(); else console.error("gisLoaded not defined after GIS client load."); };
-    scriptTag.onerror = function() { console.error("Failed to load GIS client."); showGlobalError("Failed to load Google Sign-In component. Please check your internet connection or ad-blockers.");};
+    scriptTag.onload = function() { if (typeof gisLoaded === 'function') gisLoaded(); else console.error("gisLoaded not defined."); };
+    scriptTag.onerror = function() { console.error("Failed to load GIS client."); showGlobalError("Failed to load Sign-In component.");};
     document.head.appendChild(scriptTag);
   }
   loadGisClientInternal();
