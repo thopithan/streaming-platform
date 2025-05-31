@@ -1,1 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Google Drive Video Gallery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ... (all the CSS styles from the previous full code example) ... */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #334155;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0; /* Ensure no default margin */
+        }
+        .video-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+        .spinner {
+            border-top-color: #3b82f6;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+        @-webkit-keyframes spinner {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #app-content {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            min-height: auto;
+            padding: 2rem 1rem; /* py-8 px-4 */
+        }
+        #passcode-section {
+            display: flex; /* Initially visible */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
 
+    <!-- Passcode Section -->
+    <div id="passcode-section" class="p-8 bg-white rounded-xl shadow-xl border border-gray-200 w-full max-w-md">
+        <!-- ... (HTML for passcode input) ... -->
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Enter Passcode to Access</h2>
+        <input type="password" id="passcode-input-field" class="w-full px-4 py-3 mb-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Passcode" autocomplete="off">
+        <button id="passcode-submit-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 transition duration-300 ease-in-out">
+            Access Gallery
+        </button>
+        <p id="passcode-error-message" class="text-red-600 mt-3 text-sm hidden">Invalid passcode.</p>
+    </div>
+
+    <!-- Main Application Content (Initially Hidden) -->
+    <div id="app-content">
+        <!-- ... (HTML for your video gallery: h1, auth-status, video-gallery, video-modal) ... -->
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-8 text-center">My Video Collection</h1>
+
+        <div id="auth-status" class="flex flex-col items-center mb-8 p-6 bg-white rounded-xl shadow-lg border border-blue-100">
+            <p id="status-message" class="text-lg text-gray-700 mb-4">Please sign in to view your videos.</p>
+            <button id="authorize_button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition duration-300 ease-in-out" disabled>
+                Sign In with Google
+            </button>
+            <div id="loading-spinner" class="hidden mt-4 w-12 h-12 border-4 border-gray-200 border-solid rounded-full spinner"></div>
+            <p id="error-message" class="text-red-600 mt-4 hidden"></p>
+        </div>
+
+        <div id="video-gallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full max-w-7xl">
+        </div>
+
+        <div id="video-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay p-4">
+            <div class="relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                <button id="close-modal" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-3xl font-bold focus:outline-none">
+                    ×
+                </button>
+                <h2 id="modal-video-title" class="text-2xl font-bold text-gray-800 mb-4"></h2>
+                <div class="relative" style="padding-bottom: 56.25%;">
+                    <iframe id="video-player" class="absolute top-0 left-0 w-full h-full rounded-lg"
+                            src="" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- START OF PASSCODE LOGIC (Client-Side Hashing) ---
+        // WARNING: Client-side validation is NOT truly secure.
+        // The hash is visible, and the logic can be bypassed in developer tools.
+        // This provides a deterrent, not robust security.
+
+        // ❗ STEP 1: Generate the SHA-256 hash of YOUR desired passcode.
+        //    (Instructions were provided on how to do this in browser console)
+        // ❗ STEP 2: Replace the placeholder below with the generated hash.
+        const STORED_PASSCODE_HASH = "YOUR_PRE_CALCULATED_SHA256_HASH_HERE"; // <-- ❗ PASTE HASH HERE ❗
+
+        const passcodeSectionEl = document.getElementById('passcode-section');
+        // ... (rest of the passcode JavaScript logic from previous full code) ...
+        const appContentEl = document.getElementById('app-content');
+        const passcodeSubmitButtonEl = document.getElementById('passcode-submit-button');
+        const passcodeErrorEl = document.getElementById('passcode-error-message');
+        const passcodeInputField = document.getElementById('passcode-input-field');
+
+        async function verifyPasscode() {
+            const enteredPasscode = passcodeInputField.value;
+            passcodeErrorEl.classList.add('hidden'); // Hide error initially
+
+            if (!enteredPasscode) {
+                passcodeErrorEl.textContent = 'Passcode cannot be empty.';
+                passcodeErrorEl.classList.remove('hidden');
+                return;
+            }
+            if (STORED_PASSCODE_HASH === "YOUR_PRE_CALCULATED_SHA256_HASH_HERE") {
+                passcodeErrorEl.textContent = 'Developer: Passcode hash not configured!';
+                passcodeErrorEl.classList.remove('hidden');
+                console.error("CRITICAL: STORED_PASSCODE_HASH has not been set by the developer.");
+                return;
+            }
+
+            try {
+                const buffer = new TextEncoder().encode(enteredPasscode);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const enteredPasscodeHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+                if (enteredPasscodeHash === STORED_PASSCODE_HASH) {
+                    passcodeSectionEl.style.display = 'none';
+                    appContentEl.style.display = 'flex';
+                    // Reset body styles that were for centering the passcode form
+                    document.body.style.justifyContent = 'initial';
+                    document.body.style.alignItems = 'initial';
+                    if (gapiInited && gisInited) {
+                         maybeEnableAuthButton();
+                    }
+                } else {
+                    passcodeErrorEl.textContent = 'Invalid passcode.';
+                    passcodeErrorEl.classList.remove('hidden');
+                    passcodeInputField.focus();
+                    passcodeInputField.select();
+                }
+            } catch (error) {
+                console.error("Error hashing passcode:", error);
+                passcodeErrorEl.textContent = 'Error processing passcode. Please try again.';
+                passcodeErrorEl.classList.remove('hidden');
+            }
+        }
+
+        passcodeSubmitButtonEl.addEventListener('click', verifyPasscode);
+        passcodeInputField.addEventListener('keypress', function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                verifyPasscode();
+            }
+        });
+        // --- END OF PASSCODE LOGIC ---
+
+
+        // --- START OF GOOGLE DRIVE GALLERY LOGIC ---
+        // ❗ IMPORTANT: Replace these with your actual Google API credentials and folder ID
+        const CLIENT_ID = 'YOUR_CLIENT_ID.apps.googleusercontent.com'; // <-- ❗ PASTE CLIENT ID HERE ❗
+        const API_KEY = 'YOUR_API_KEY_IF_YOU_HAVE_ONE'; // <-- ❗ PASTE API KEY HERE (OPTIONAL) ❗
+        const GOOGLE_DRIVE_FOLDER_ID = 'YOUR_GOOGLE_DRIVE_FOLDER_ID'; // <-- ❗ PASTE FOLDER ID HERE ❗
+
+        const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+        // ... (rest of the Google Drive Gallery JavaScript logic from previous full code) ...
+        const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
+
+        let gapiInited = false;
+        let gisInited = false;
+        let tokenClient;
+        let gapi;
+        let gis;
+
+        const authorizeButton = document.getElementById('authorize_button');
+        const statusMessage = document.getElementById('status-message');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const errorMessage = document.getElementById('error-message');
+        const videoGallery = document.getElementById('video-gallery');
+        const videoModal = document.getElementById('video-modal');
+        const closeModalButton = document.getElementById('close-modal');
+        const modalVideoTitle = document.getElementById('modal-video-title');
+        const videoPlayer = document.getElementById('video-player');
+
+        function gapiLoaded() {
+            gapi = window.gapi;
+            gapi.load('client', initializeGapiClient);
+        }
+
+        async function initializeGapiClient() {
+            try {
+                await gapi.client.init({
+                    apiKey: API_KEY,
+                    discoveryDocs: DISCOVERY_DOCS,
+                });
+                gapiInited = true;
+                maybeEnableAuthButton();
+            } catch (error) {
+                console.error("Error initializing GAPI client:", error);
+                showError("Error initializing Google API client. Check console.");
+            }
+        }
+
+        function gisLoaded() {
+            gis = window.google.accounts.oauth2;
+            try {
+                tokenClient = gis.initTokenClient({
+                    client_id: CLIENT_ID,
+                    scope: SCOPES,
+                    callback: '', 
+                });
+                gisInited = true;
+                maybeEnableAuthButton();
+            } catch (error) {
+                console.error("Error initializing GIS token client:", error);
+                showError("Error initializing Google Sign-In. Check console and Client ID.");
+                if (CLIENT_ID === 'YOUR_CLIENT_ID.apps.googleusercontent.com') {
+                    showError("Developer: CLIENT_ID has not been configured!");
+                }
+            }
+        }
+
+        function maybeEnableAuthButton() {
+            if (appContentEl.style.display === 'none' || appContentEl.style.display === '') return;
+
+            if (gapiInited && gisInited) {
+                authorizeButton.onclick = handleAuthClick;
+                statusMessage.textContent = 'Ready to sign in.';
+                authorizeButton.disabled = false;
+                loadingSpinner.classList.add('hidden');
+            } else {
+                if (appContentEl.style.display !== 'none') { 
+                    loadingSpinner.classList.remove('hidden');
+                    statusMessage.textContent = 'Initializing authentication...';
+                    authorizeButton.disabled = true;
+                }
+            }
+        }
+
+        function handleAuthClick() {
+            if (!tokenClient) {
+                showError("Authentication client not initialized. Please wait or refresh.");
+                return;
+            }
+            tokenClient.callback = async (resp) => {
+                if (resp.error) {
+                    console.error('Authentication Error:', resp.error);
+                    let errorMsgText = 'Failed to sign in. ';
+                    if (resp.error === "popup_closed_by_user") {
+                        errorMsgText += "The sign-in window was closed before completion.";
+                    } else if (resp.error === "access_denied") {
+                        errorMsgText += "Access was denied. Please grant permission to access your Google Drive files.";
+                    } else if (resp.error === "popup_failed_to_open") {
+                        errorMsgText += "The sign-in pop-up failed to open. Please ensure pop-ups are not blocked for this site and try again.";
+                    }
+                    else {
+                        errorMsgText += `Error: ${resp.error}. Please check credentials, network, and ensure pop-ups aren't blocked.`;
+                    }
+                    showError(errorMsgText);
+                    authorizeButton.textContent = 'Sign In with Google';
+                    authorizeButton.disabled = false;
+                    loadingSpinner.classList.add('hidden');
+                    return;
+                }
+                statusMessage.textContent = 'Signed in successfully!';
+                authorizeButton.textContent = 'Loading videos...';
+                authorizeButton.disabled = true;
+                loadingSpinner.classList.remove('hidden');
+                errorMessage.classList.add('hidden');
+                await listDriveVideos();
+            };
+
+            if (gapi.client.getToken() === null) {
+                tokenClient.requestAccessToken({prompt: 'consent'});
+            } else {
+                tokenClient.requestAccessToken({prompt: ''}); 
+            }
+        }
+
+        async function listDriveVideos() {
+            if (GOOGLE_DRIVE_FOLDER_ID === 'YOUR_GOOGLE_DRIVE_FOLDER_ID') {
+                showError("Developer: GOOGLE_DRIVE_FOLDER_ID has not been configured!");
+                loadingSpinner.classList.add('hidden');
+                authorizeButton.classList.remove('hidden');
+                statusMessage.classList.remove('hidden');
+                authorizeButton.textContent = 'Sign In with Google';
+                authorizeButton.disabled = false;
+                return;
+            }
+            try {
+                videoGallery.innerHTML = '';
+                const response = await gapi.client.drive.files.list({
+                    q: `'${GOOGLE_DRIVE_FOLDER_ID}' in parents and mimeType contains 'video/' and trashed = false`,
+                    fields: 'files(id, name, description, thumbnailLink, webViewLink)',
+                    pageSize: 100,
+                });
+
+                loadingSpinner.classList.add('hidden');
+                authorizeButton.classList.add('hidden');
+                statusMessage.classList.add('hidden');
+
+                const files = response.result.files;
+                if (files && files.length > 0) {
+                    files.forEach(file => {
+                        createVideoCard(file);
+                    });
+                } else {
+                    videoGallery.innerHTML = '<p class="text-center text-gray-600 text-xl col-span-full">No videos found. Check folder ID, permissions, and ensure videos exist.</p>';
+                }
+            } catch (err) {
+                console.error('Error listing files:', err);
+                loadingSpinner.classList.add('hidden');
+                authorizeButton.classList.remove('hidden');
+                statusMessage.classList.remove('hidden');
+                authorizeButton.textContent = 'Sign In with Google';
+                authorizeButton.disabled = false;
+                let detail = (err.result && err.result.error && err.result.error.message) ? err.result.error.message : 'Check console for details.';
+                showError(`Error fetching videos: ${detail}. Check API key, Client ID, Folder ID & permissions.`);
+            }
+        }
+
+        function createVideoCard(file) {
+            const card = document.createElement('div');
+            card.className = 'video-card group bg-white rounded-xl shadow-md overflow-hidden flex flex-col cursor-pointer';
+            card.setAttribute('data-video-id', file.id);
+            card.setAttribute('data-video-url', file.webViewLink);
+            card.setAttribute('data-video-embed-url', file.webViewLink.replace("/view", "/preview").replace("usp=sharing", "usp=embed_googleplus"));
+            card.setAttribute('data-video-title', file.name);
+
+            const thumbnailUrl = file.thumbnailLink || `https://placehold.co/480x270/e2e8f0/64748b?text=No+Thumbnail`;
+
+            card.innerHTML = `
+                <div class="relative w-full h-48 overflow-hidden bg-gray-200 flex items-center justify-center">
+                    <img src="${thumbnailUrl}" alt="${file.name}" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/480x270/e2e8f0/64748b?text=Image+Error';">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="p-5 flex-grow flex flex-col">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2 truncate" title="${file.name}">${file.name}</h3>
+                    <p class="text-gray-600 text-sm flex-grow mb-3 line-clamp-2">${file.description || 'No description available.'}</p>
+                    <button class="play-button-visual mt-auto bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transform group-hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 pointer-events-none">
+                        Play Video
+                    </button>
+                </div>
+            `;
+            videoGallery.appendChild(card);
+            card.addEventListener('click', () => {
+                const videoEmbedUrl = card.getAttribute('data-video-embed-url');
+                const videoTitle = card.getAttribute('data-video-title');
+                openVideoModal(videoEmbedUrl, videoTitle);
+            });
+        }
+
+        function openVideoModal(embedUrl, title) {
+            modalVideoTitle.textContent = title;
+            videoPlayer.src = embedUrl;
+            videoModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeVideoModal() {
+            videoModal.classList.add('hidden');
+            videoPlayer.src = '';
+            document.body.style.overflow = '';
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+        }
+
+        closeModalButton.addEventListener('click', closeVideoModal);
+        videoModal.addEventListener('click', (e) => {
+            if (e.target === videoModal) { closeVideoModal(); }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !videoModal.classList.contains('hidden')) {
+                closeVideoModal();
+            }
+        });
+        // --- END OF GOOGLE DRIVE GALLERY LOGIC ---
+    </script>
+
+    <!-- Google API Loader Scripts -->
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script>
+        function loadGisClient() {
+            const scriptTag = document.createElement('script');
+            scriptTag.src = 'https://accounts.google.com/gsi/client';
+            scriptTag.async = true;
+            scriptTag.defer = true;
+            scriptTag.onload = function() {
+                if (typeof gisLoaded === 'function') {
+                    gisLoaded();
+                } else {
+                    console.error("gisLoaded function not defined when GIS client loaded.");
+                }
+            };
+            scriptTag.onerror = function() {
+                console.error("Failed to load Google Identity Services client script.");
+                showError("Failed to load Google Sign-In component. Check network or ad-blockers.");
+            };
+            document.head.appendChild(scriptTag);
+        }
+        loadGisClient();
+    </script>
+
+</body>
+</html>
