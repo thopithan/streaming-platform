@@ -61,7 +61,6 @@
       <div class="text-2xl font-bold text-white">MYFLIX</div>
       <div class="hidden md:flex items-center space-x-6">
         <a href="#" class="text-gray-300 hover:text-white nav-link" data-view="dashboard-view">DASHBOARD</a>
-        <!-- Category links can be added later if filtering based on TMDb genres -->
       </div>
       <div class="flex items-center space-x-4">
         <button id="download-meta-button" class="hidden bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm py-2 px-3 rounded-md">Download meta.json</button>
@@ -118,7 +117,7 @@
     <section id="detail-related-section" class="pt-10"></section>
   </div>
 
-  <!-- Video Player Modal -->
+  <!-- Video Player Modal (used for Desktop only now) -->
   <div id="video-modal" class="fixed inset-0 z-[1000] hidden flex items-center justify-center bg-black bg-opacity-80 p-4">
     <div class="relative bg-gray-800 rounded-xl shadow-2xl p-1 md:p-2 w-full max-w-4xl max-h-[90vh] overflow-hidden">
       <button id="close-modal" class="absolute top-2 right-2 md:top-3 md:right-3 text-gray-400 hover:text-white text-3xl font-bold focus:outline-none z-10">×</button>
@@ -135,25 +134,24 @@
 
 <script>
   // --- START OF CONFIGURATION ---
-  const STORED_PASSCODE_HASH = "ad90de1520fb30637f3734f9b03140a1abd6dcb3dd922c0684b9f57b3da08861"; // SHA256 of "password". REPLACE THIS with hash of your actual passcode.
-  const DEFAULT_DEV_PASSCODE_HASH = ""; // Used to warn if default is still set (same as "password" hash for this example)
-  const CLIENT_ID = '82608849356-u1c59ugg5dijbn0vjnpoubibhcfbccuc.apps.googleusercontent.com'; // ❗ REPLACE THIS with your Google OAuth Client ID
-  const API_KEY = ''; // Google API Key (Usually optional if using OAuth for all calls) ❗ REPLACE THIS if needed for specific GAPI calls not covered by OAuth token
-  const GOOGLE_DRIVE_FOLDER_ID = '1lMS61TWY60Fqt6aQ3tNQIr82VSzISOLL'; // ❗ REPLACE THIS with your Google Drive Folder ID
-  const TMDB_API_KEY = '96940be4c3047db623024860a4d18ade'; // ❗ REPLACE THIS with your TMDb API Key (v3 auth)
-  const META_JSON_URL = './meta.json'; // ❗ URL to your meta.json file. Place it in the same directory or provide a full URL.
+  const STORED_PASSCODE_HASH = "ad90de1520fb30637f3734f9b03140a1abd6dcb3dd922c0684b9f57b3da08861"; // SHA256 of "password". REPLACE THIS
+  const DEFAULT_DEV_PASSCODE_HASH = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"; // SHA256 of "password"
+  const CLIENT_ID = '82608849356-u1c59ugg5dijbn0vjnpoubibhcfbccuc.apps.googleusercontent.com'; // ❗ REPLACE THIS
+  const API_KEY = ''; // ❗ REPLACE THIS if needed
+  const GOOGLE_DRIVE_FOLDER_ID = '1lMS61TWY60Fqt6aQ3tNQIr82VSzISOLL'; // ❗ REPLACE THIS
+  const TMDB_API_KEY = '96940be4c3047db623024860a4d18ade'; // ❗ REPLACE THIS
+  const META_JSON_URL = './meta.json'; // ❗ URL to your meta.json
+  // --- END OF CONFIGURATION ---
 
   const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
   const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
-  // --- END OF CONFIGURATION ---
 
   let gapiInited = false;
   let gisInited = false;
   let tokenClient;
   let gapi;
   let gis;
-  let googleDriveFilesWithTMDbMeta = []; // This will hold the live, synchronized metadata from meta.json and Drive
-  // let allDriveFilesRaw = []; // No longer strictly needed globally after sync
+  let googleDriveFilesWithTMDbMeta = [];
 
   // DOM Elements
   const appContentEl = document.getElementById('app-content');
@@ -330,7 +328,7 @@
 
   // --- TMDb Fetching Logic ---
   async function fetchTMDbDetailsForMovie(movieNameFromDrive, driveFileId) {
-    console.log(`Fetching TMDb for: "${movieNameFromDrive}" (Drive ID: ${driveFileId})`);
+    // console.log(`Fetching TMDb for: "${movieNameFromDrive}" (Drive ID: ${driveFileId})`); // Less verbose
     const cleanNameForSearch = movieNameFromDrive
             .replace(/\.(mkv|mp4|avi|mov|wmv|flv|webm)$/i, '')
             .replace(/[._\-\+]/g, ' ')
@@ -420,7 +418,7 @@
   async function loadAndSynchronizeData() {
     showLoadingState(true, "Starting data synchronization...");
     googleDriveFilesWithTMDbMeta = [];
-    let allDriveFilesRaw = []; // Keep this local to this function
+    let allDriveFilesRaw = [];
     let currentProgress = 0;
     const totalProgressPhases = 4;
     const progressPerPhase = 100 / totalProgressPhases;
@@ -469,7 +467,7 @@
         const updatedEntry = { ...metaEntry };
         if (driveFile) {
           updatedEntry.driveFileName = driveFile.name;
-          updatedEntry.webViewLink = driveFile.webViewLink; // Ensure webViewLink is always updated
+          updatedEntry.webViewLink = driveFile.webViewLink;
         }
         finalMetaData.push(updatedEntry);
       }
@@ -478,7 +476,7 @@
     const finalMetaDataIds = new Set(finalMetaData.map(m => m.driveFileId));
     for (const driveFile of allDriveFilesRaw) {
       if (!finalMetaDataIds.has(driveFile.id)) {
-        filesToFetchTMDbFor.push(driveFile); // Push the full driveFile object
+        filesToFetchTMDbFor.push(driveFile);
       }
     }
     currentProgress += progressPerPhase;
@@ -492,7 +490,6 @@
       for (const driveFile of filesToFetchTMDbFor) {
         updateProgress(tmdbProgressStart + (fetchedCount * progressPerTMDbFetch), `Fetching metadata for: ${driveFile.name}`);
         const tmdbMeta = await fetchTMDbDetailsForMovie(driveFile.name, driveFile.id);
-        // Add webViewLink from the DriveFile object to the new meta entry
         finalMetaData.push({ ...tmdbMeta, webViewLink: driveFile.webViewLink });
         fetchedCount++;
         await new Promise(resolve => setTimeout(resolve, 350));
@@ -621,49 +618,39 @@
     showView('movie-detail-view');
   }
 
-  // Helper function to detect iOS
-  function isIOS() {
-    return [
-              'iPad Simulator',
-              'iPhone Simulator',
-              'iPod Simulator',
-              'iPad',
-              'iPhone',
-              'iPod'
-            ].includes(navigator.platform)
-            // iPad on iOS 13 detection
-            || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+  // Helper function to detect mobile devices (more broadly)
+  function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   }
 
   function playVideo(videoMeta) {
-    const webViewLink = videoMeta.webViewLink; // Assumes webViewLink is always present in the meta object
+    const webViewLink = videoMeta.webViewLink;
     if (!webViewLink) {
       console.error("webViewLink is missing for video:", videoMeta.title);
       alert("Video link is missing. Cannot play.");
       return;
     }
 
-    if (isIOS()) {
-      // For iOS, open in a new tab.
-      // This gives a better chance for native player controls and reliable fullscreen.
+    if (isMobileDevice()) {
+      // For all mobile devices, open the Google Drive webViewLink in a new tab.
+      // Google Drive's mobile web interface should offer fullscreen and close options.
       const newTab = window.open(webViewLink, '_blank');
       if (newTab) {
         newTab.focus();
       } else {
-        // This might happen if a pop-up blocker is very aggressive
-        alert("Could not open video in a new tab. Please check your pop-up blocker settings and try again. Link: " + webViewLink);
+        alert("Could not open video in a new tab. Please check your pop-up blocker settings. Link: " + webViewLink);
       }
-      return; // Don't proceed to show the modal for iOS if opening in new tab
+      return; // Don't proceed to show the modal for mobile if opening in new tab
     }
 
-    // For non-iOS browsers, use the embedded player in the modal
+    // For non-mobile (desktop) browsers, use the embedded player in the modal
     const embedUrl = webViewLink.replace("/view", "/preview").replace("usp=sharing", "usp=embed_googleplus");
     videoPlayer.src = embedUrl;
     videoModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
   }
 
-  function closeVideoPlayerModal() {
+  function closeVideoPlayerModal() { // Only called for desktop now
     videoModal.classList.add('hidden'); videoPlayer.src = ''; document.body.style.overflow = '';
   }
 
@@ -681,9 +668,15 @@
       }
     });
     backToDashboardButton.addEventListener('click', () => showView('dashboard-view'));
+    // closeModalButton and videoModal click listener are still relevant for desktop
     closeModalButton.addEventListener('click', closeVideoPlayerModal);
     videoModal.addEventListener('click', (e) => { if (e.target === videoModal) closeVideoPlayerModal(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !videoModal.classList.contains('hidden')) closeVideoPlayerModal();});
+    document.addEventListener('keydown', (e) => {
+      // Close modal on Escape, only if modal is visible (desktop)
+      if (e.key === 'Escape' && !videoModal.classList.contains('hidden')) {
+        closeVideoPlayerModal();
+      }
+    });
     downloadMetaButtonEl.addEventListener('click', downloadUpdatedMetaJson);
   }
 
