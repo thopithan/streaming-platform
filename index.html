@@ -110,6 +110,7 @@
         </div>
         <p id="detail-synopsis" class="mb-6 text-lg leading-relaxed"></p>
         <button id="detail-play-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-10 rounded-md text-lg mb-8">PLAY VIDEO</button>
+        <div class="mb-6"><h3 class="text-xl font-semibold text-white mb-2">Director</h3><p id="detail-director" class="text-gray-400"></p></div>
         <div class="mb-6"><h3 class="text-xl font-semibold text-white mb-2">Cast</h3><ul id="detail-cast-list" class="list-none space-y-1 text-gray-400"></ul></div>
         <div><h3 class="text-xl font-semibold text-white mb-2">Ratings</h3><div id="detail-ratings" class="flex space-x-4 text-gray-400"></div></div>
       </div>
@@ -121,17 +122,23 @@
   <div id="video-modal" class="fixed inset-0 z-[1000] hidden flex items-center justify-center bg-black bg-opacity-80 p-4">
     <div class="relative bg-gray-800 rounded-xl shadow-2xl p-1 md:p-2 w-full max-w-4xl max-h-[90vh] overflow-hidden">
       <button id="close-modal" class="absolute top-2 right-2 md:top-3 md:right-3 text-gray-400 hover:text-white text-3xl font-bold focus:outline-none z-10">×</button>
-      <div class="relative" style="padding-bottom: 56.25%;"><iframe id="video-player" class="absolute top-0 left-0 w-full h-full rounded-lg" src="" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="relative" style="padding-bottom: 56.25%;">
+        <iframe id="video-player" class="absolute top-0 left-0 w-full h-full rounded-lg" src="" frameborder="0"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowfullscreen
+                webkitallowfullscreen
+                mozallowfullscreen></iframe>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
   // --- START OF CONFIGURATION ---
-  const STORED_PASSCODE_HASH = "ad90de1520fb30637f3734f9b03140a1abd6dcb3dd922c0684b9f57b3da08861"; // ❗ SHA256 of "password". REPLACE THIS with hash of your actual passcode.
-  const DEFAULT_DEV_PASSCODE_HASH = "ad90de1520fb30637f3734f9b03240a1abd6dcb3dd922c0684b9f57b3da08861"; // Used to warn if default is still set
+  const STORED_PASSCODE_HASH = "ad90de1520fb30637f3734f9b03140a1abd6dcb3dd922c0684b9f57b3da08861"; // SHA256 of "password". REPLACE THIS with hash of your actual passcode.
+  const DEFAULT_DEV_PASSCODE_HASH = ""; // Used to warn if default is still set (same as "password" hash for this example)
   const CLIENT_ID = '82608849356-u1c59ugg5dijbn0vjnpoubibhcfbccuc.apps.googleusercontent.com'; // ❗ REPLACE THIS with your Google OAuth Client ID
-  const API_KEY = ''; // Google API Key (Usually optional if using OAuth for all calls) ❗ REPLACE THIS if needed
+  const API_KEY = ''; // Google API Key (Usually optional if using OAuth for all calls) ❗ REPLACE THIS if needed for specific GAPI calls not covered by OAuth token
   const GOOGLE_DRIVE_FOLDER_ID = '1lMS61TWY60Fqt6aQ3tNQIr82VSzISOLL'; // ❗ REPLACE THIS with your Google Drive Folder ID
   const TMDB_API_KEY = '96940be4c3047db623024860a4d18ade'; // ❗ REPLACE THIS with your TMDb API Key (v3 auth)
   const META_JSON_URL = './meta.json'; // ❗ URL to your meta.json file. Place it in the same directory or provide a full URL.
@@ -146,7 +153,7 @@
   let gapi;
   let gis;
   let googleDriveFilesWithTMDbMeta = []; // This will hold the live, synchronized metadata from meta.json and Drive
-  let allDriveFilesRaw = []; // To store raw drive file list temporarily for webViewLink access
+  // let allDriveFilesRaw = []; // No longer strictly needed globally after sync
 
   // DOM Elements
   const appContentEl = document.getElementById('app-content');
@@ -166,6 +173,7 @@
   const detailDuration = document.getElementById('detail-duration');
   const detailSynopsis = document.getElementById('detail-synopsis');
   const detailPlayButton = document.getElementById('detail-play-button');
+  const detailDirector = document.getElementById('detail-director');
   const detailCastList = document.getElementById('detail-cast-list');
   const detailRatings = document.getElementById('detail-ratings');
   const detailRelatedSection = document.getElementById('detail-related-section');
@@ -212,7 +220,7 @@
       progressIndicatorEl.classList.remove('hidden');
       updateProgress(0, message);
       authStatusContainerEl.style.display = 'flex';
-      appContentEl.style.display = 'none'; // Hide app content during critical loading
+      appContentEl.style.display = 'none';
     } else {
       loadingSpinner.classList.add('hidden');
       progressIndicatorEl.classList.add('hidden');
@@ -220,7 +228,6 @@
         authStatusContainerEl.style.display = 'none';
       }
       statusMessage.classList.add('hidden');
-      // Only show app content if loading is truly finished and no error screen is up
       if (authStatusContainerEl.style.display === 'none') {
         appContentEl.style.display = 'block';
       }
@@ -241,17 +248,27 @@
     const enteredPasscode = passcodeInputField.value;
     passcodeErrorEl.classList.add('hidden');
     if (!enteredPasscode) { passcodeErrorEl.textContent = 'Passcode cannot be empty.'; passcodeErrorEl.classList.remove('hidden'); return; }
-    if (STORED_PASSCODE_HASH === DEFAULT_DEV_PASSCODE_HASH) { passcodeErrorEl.textContent = 'Developer: Default passcode hash is in use. Please change STORED_PASSCODE_HASH.'; passcodeErrorEl.classList.remove('hidden'); return;}
+    if (STORED_PASSCODE_HASH === DEFAULT_DEV_PASSCODE_HASH) {
+      const passwordHashForWarning = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8";
+      if (STORED_PASSCODE_HASH === passwordHashForWarning) {
+        passcodeErrorEl.textContent = 'Security Notice: Default passcode "password" is in use. Please change STORED_PASSCODE_HASH in the code.';
+        passcodeErrorEl.classList.remove('hidden');
+      }
+    }
     try {
       const buffer = new TextEncoder().encode(enteredPasscode);
       const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const enteredPasscodeHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
       if (enteredPasscodeHash === STORED_PASSCODE_HASH) {
         passcodeSectionEl.style.display = 'none';
         authStatusContainerEl.style.display = 'flex';
-        if (gapiInited && gisInited) maybeEnableAuthButton();
-        else showLoadingState(true, 'Initializing authentication...');
+        if (gapiInited && gisInited) {
+          maybeEnableAuthButton();
+        } else {
+          showLoadingState(true, 'Initializing authentication...');
+        }
       } else {
         passcodeErrorEl.textContent = 'Invalid passcode.'; passcodeErrorEl.classList.remove('hidden');
         passcodeInputField.focus(); passcodeInputField.select();
@@ -265,29 +282,28 @@
   function gapiLoaded() { gapi = window.gapi; gapi.load('client', initializeGapiClient); }
   async function initializeGapiClient() {
     try { await gapi.client.init({ apiKey: API_KEY, discoveryDocs: DISCOVERY_DOCS }); gapiInited = true; maybeEnableAuthButton(); }
-    catch (error) { console.error("GAPI client init error:", error); showGlobalError("Error initializing Google API."); }
+    catch (error) { console.error("GAPI client init error:", error); showGlobalError("Error initializing Google API: " + error.message); }
   }
   function gisLoaded() {
     gis = window.google.accounts.oauth2;
     try { tokenClient = gis.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: '' }); gisInited = true; maybeEnableAuthButton(); }
-    catch (error) { console.error("GIS client init error:", error); showGlobalError("Error initializing Google Sign-In."); }
+    catch (error) { console.error("GIS client init error:", error); showGlobalError("Error initializing Google Sign-In: " + error.message); }
   }
+
   function maybeEnableAuthButton() {
     if (authStatusContainerEl.style.display === 'none' || authStatusContainerEl.style.display === '') return;
+
     if (gapiInited && gisInited) {
       authorizeButton.onclick = handleAuthClick;
-      statusMessage.textContent = 'Ready to sign in.';
+      statusMessage.textContent = 'Ready. Please sign in.';
       authorizeButton.disabled = false;
-      loadingSpinner.classList.add('hidden'); // Hide spinner if it was for GAPI/GIS init
-      // If progress indicator was visible for GAPI/GIS init, hide it too
+      loadingSpinner.classList.add('hidden');
       if (progressMessageEl.textContent.startsWith('Initializing authentication')) {
         progressIndicatorEl.classList.add('hidden');
       }
     } else {
-      // Still waiting for GAPI or GIS
-      if (!loadingSpinner.classList.contains('hidden')) { // If spinner is already shown by passcode success
+      if (!loadingSpinner.classList.contains('hidden')) {
         statusMessage.textContent = 'Initializing authentication components...';
-        updateProgress(0, 'Initializing authentication components...');
       }
     }
   }
@@ -296,17 +312,20 @@
     if (!tokenClient) { showGlobalError("Auth client not ready."); return; }
     tokenClient.callback = async (resp) => {
       if (resp.error) {
-        console.error('Auth Error:', resp.error);
+        console.error('Auth Error:', resp.error, resp.error_description);
         let errMsg = 'Failed to sign in. ' + (resp.error_description || resp.error);
-        showGlobalError(errMsg); authorizeButton.textContent = 'Sign In'; authorizeButton.disabled = false; loadingSpinner.classList.add('hidden');
+        showGlobalError(errMsg); authorizeButton.textContent = 'Sign In with Google'; authorizeButton.disabled = false; loadingSpinner.classList.add('hidden');
         return;
       }
-      // Auth successful, now appContentEl will be shown by showLoadingState(false) after sync
       downloadMetaButtonEl.classList.remove('hidden');
       await loadAndSynchronizeData();
     };
-    if (gapi.client.getToken() === null) tokenClient.requestAccessToken({prompt: 'consent'});
-    else tokenClient.requestAccessToken({prompt: ''});
+
+    if (gapi.client.getToken() === null) {
+      tokenClient.requestAccessToken({prompt: 'consent'});
+    } else {
+      tokenClient.requestAccessToken({prompt: ''});
+    }
   }
 
   // --- TMDb Fetching Logic ---
@@ -314,31 +333,31 @@
     console.log(`Fetching TMDb for: "${movieNameFromDrive}" (Drive ID: ${driveFileId})`);
     const cleanNameForSearch = movieNameFromDrive
             .replace(/\.(mkv|mp4|avi|mov|wmv|flv|webm)$/i, '')
-            .replace(/[._\-\+]/g, ' ') // Replace . _ - + with space
+            .replace(/[._\-\+]/g, ' ')
             .replace(/\b(1080p|720p|4k|2160p|480p|360p|HD|SD|BluRay|BRRip|BDRip|WEB-DL|WEBRip|HDRip|DVDRip|HDTV|PDTV|DSR|SATRip|SCR|CAM|TS|TC|PPVRip)\b/gi, '')
             .replace(/\b(x264|x265|h264|h265|HEVC|XviD|DivX)\b/gi, '')
             .replace(/\b(AAC|AC3|DTS|TrueHD|Atmos|FLAC|MP3)\b/gi, '')
             .replace(/\b(5\.1|7\.1|2\.0|DUAL AUDIO|MULTI)\b/gi, '')
             .replace(/\b(HDR|SDR|EXTENDED|UNCUT|REMASTERED|DIRECTORS CUT|FINAL CUT|PROPER|REPACK|INTERNAL|LIMITED|COMPLETE|SUBBED|DUBBED|READNFO)\b/gi, '')
-            .replace(/\[.*?\]/g, '') // Remove content in square brackets like [iMDB_ID] or [UTR]
-            .replace(/\(.*?\)/g, '') // Remove content in parentheses (often year, or other tags) - careful with this if year is only here
+            .replace(/\[.*?\]/g, '')
+            .replace(/\(.*?\)/g, '')
             .replace(/\s{2,}/g, ' ')
             .trim();
 
     let searchName = cleanNameForSearch;
-    const yearMatch = movieNameFromDrive.match(/\b(19\d{2}|20\d{2})\b/); // Extract year from original name if possible
+    const yearMatch = movieNameFromDrive.match(/\b(19\d{2}|20\d{2})\b/);
     let yearForSearch = yearMatch ? yearMatch[0] : null;
 
-    if (!yearForSearch) { // If year wasn't in original filename, try to get it from cleaned name (less reliable)
+    if (!yearForSearch) {
       const cleanNameYearMatch = cleanNameForSearch.match(/\b(19\d{2}|20\d{2})\b/);
       if (cleanNameYearMatch) {
         yearForSearch = cleanNameYearMatch[0];
-        searchName = cleanNameForSearch.replace(yearForSearch, '').trim(); // Remove year from search term if found
+        searchName = cleanNameForSearch.replace(yearForSearch, '').trim();
       }
     } else {
-      searchName = cleanNameForSearch.replace(yearForSearch, '').trim(); // Remove year if found in original name pattern
+      searchName = cleanNameForSearch.replace(yearForSearch, '').trim();
     }
-    searchName = searchName.replace(/\b(19\d{2}|20\d{2})\b/g, '').trim(); // Final pass to remove any years missed
+    searchName = searchName.replace(/\b(19\d{2}|20\d{2})\b/g, '').trim();
 
     const fallbackMeta = (errMsg = "Metadata fetch failed.") => ({
       driveFileId: driveFileId,
@@ -348,11 +367,11 @@
       type: "Movie", categories: ["Uncategorized"],
       posterUrl: `https://placehold.co/300x450/1f2937/4b5563?text=${encodeURIComponent((searchName || movieNameFromDrive).substring(0,15))}`,
       heroImageUrl: null, synopsis: errMsg, cast: [], ratings: {}, duration: null, director: null,
-      isFallback: true, lastUpdated: new Date().toISOString()
+      isFallback: true, lastUpdated: new Date().toISOString(), tmdbId: null
     });
 
     if (!TMDB_API_KEY) return fallbackMeta("TMDb API Key not configured.");
-    if (!searchName) return fallbackMeta("Could not determine a valid search name.");
+    if (!searchName) return fallbackMeta("Could not determine a valid search name for TMDb.");
 
 
     try {
@@ -365,8 +384,7 @@
 
       let tmdbMovie;
       if (searchData.results && searchData.results.length > 0) {
-        tmdbMovie = searchData.results[0]; // Take the first result
-        // Optional: Add more sophisticated matching logic here if needed
+        tmdbMovie = searchData.results[0];
       } else {
         console.warn(`No TMDb results for "${searchName}" (Year: ${yearForSearch || 'N/A'}).`);
         return fallbackMeta("No TMDb match found.");
@@ -395,119 +413,105 @@
         lastUpdated: new Date().toISOString(),
         tmdbId: d.id
       };
-    } catch (error) { console.error(`General error in fetchTMDbDetailsForMovie for "${searchName}":`, error); return fallbackMeta("Network or script error during fetch."); }
+    } catch (error) { console.error(`General error in fetchTMDbDetailsForMovie for "${searchName}":`, error); return fallbackMeta("Network or script error during TMDb fetch."); }
   }
-
 
   // --- Main Data Loading and Synchronization ---
   async function loadAndSynchronizeData() {
     showLoadingState(true, "Starting data synchronization...");
     googleDriveFilesWithTMDbMeta = [];
-    allDriveFilesRaw = []; // Clear raw files list
+    let allDriveFilesRaw = []; // Keep this local to this function
     let currentProgress = 0;
-    const totalProgressPhases = 4; // 1. Load meta.json, 2. List Drive, 3. Sync Logic, 4. Fetch TMDb
+    const totalProgressPhases = 4;
     const progressPerPhase = 100 / totalProgressPhases;
 
-    // 1. Fetch existing meta.json
     updateProgress(currentProgress, "Fetching local metadata (meta.json)...");
     let localMeta = [];
     try {
-      const response = await fetch(META_JSON_URL + `?t=${new Date().getTime()}`); // Cache buster
+      const response = await fetch(META_JSON_URL + `?t=${new Date().getTime()}`);
       if (response.ok) {
         localMeta = await response.json();
-        if (!Array.isArray(localMeta)) { localMeta = []; }
+        if (!Array.isArray(localMeta)) { localMeta = []; console.warn("meta.json was not a valid array.");}
       } else { console.warn(`meta.json not found or error (status: ${response.status}). Will build new.`); }
     } catch (error) { console.warn("Error fetching meta.json:", error); }
     currentProgress += progressPerPhase;
     updateProgress(currentProgress, "Local metadata processed.");
 
-    // 2. List files from Google Drive
     updateProgress(currentProgress, "Fetching video list from Google Drive...");
     try {
       const response = await gapi.client.drive.files.list({
-        q: `'${GOOGLE_DRIVE_FOLDER_ID}' in parents and (mimeType contains 'video/' or mimeType = 'application/octet-stream') and trashed = false`, // Added octet-stream for some raw video files
+        q: `'${GOOGLE_DRIVE_FOLDER_ID}' in parents and (mimeType contains 'video/' or mimeType = 'application/octet-stream') and trashed = false`,
         fields: 'files(id, name, webViewLink, description, thumbnailLink, createdTime, modifiedTime)',
-        pageSize: 500, // Increased page size
-        orderBy: 'name'
+        pageSize: 500, orderBy: 'name'
       });
       allDriveFilesRaw = response.result.files || [];
     } catch (err) {
       console.error('Error listing Drive files:', err);
       showGlobalError('Error loading files from Drive: ' + (err.result?.error?.message || err.message || "Unknown error"));
-      showLoadingState(false); // Critical error, stop loading
-      return;
+      showLoadingState(false); return;
     }
     currentProgress += progressPerPhase;
     updateProgress(currentProgress, `${allDriveFilesRaw.length} item(s) found in Drive folder.`);
 
     if (allDriveFilesRaw.length === 0 && localMeta.length === 0) {
       videoCategoriesContainer.innerHTML = '<p class="text-center text-gray-400 text-xl">No videos found in Drive or local metadata.</p>';
-      showLoadingState(false);
-      appContentEl.style.display = 'block'; // Show empty app
-      populateDashboard([]);
-      setupEventListeners([]);
-      return;
+      showLoadingState(false); populateDashboard([]); setupEventListeners([]); return;
     }
 
-    // 3. Synchronize: Identify new, existing, and deleted files
     updateProgress(currentProgress, "Synchronizing metadata...");
     const driveFileIdsInDrive = new Set(allDriveFilesRaw.map(f => f.id));
     const finalMetaData = [];
-    let filesToFetchTMDbFor = []; // These are DriveFile objects
+    let filesToFetchTMDbFor = [];
 
-    // Check localMeta against Drive
     for (const metaEntry of localMeta) {
       if (driveFileIdsInDrive.has(metaEntry.driveFileId)) {
         const driveFile = allDriveFilesRaw.find(df => df.id === metaEntry.driveFileId);
-        const updatedEntry = { ...metaEntry }; // Copy existing meta
-        if (driveFile) { // Ensure driveFile is found
-          updatedEntry.driveFileName = driveFile.name; // Always update filename from Drive
-          updatedEntry.webViewLink = driveFile.webViewLink; // Always update webViewLink
+        const updatedEntry = { ...metaEntry };
+        if (driveFile) {
+          updatedEntry.driveFileName = driveFile.name;
+          updatedEntry.webViewLink = driveFile.webViewLink; // Ensure webViewLink is always updated
         }
         finalMetaData.push(updatedEntry);
-      } else { /* In meta.json but not Drive - will be implicitly removed */ }
+      }
     }
 
-    // Check Drive files against synced localMeta
+    const finalMetaDataIds = new Set(finalMetaData.map(m => m.driveFileId));
     for (const driveFile of allDriveFilesRaw) {
-      if (!finalMetaData.some(entry => entry.driveFileId === driveFile.id)) {
-        filesToFetchTMDbFor.push(driveFile); // Add DriveFile object
+      if (!finalMetaDataIds.has(driveFile.id)) {
+        filesToFetchTMDbFor.push(driveFile); // Push the full driveFile object
       }
     }
     currentProgress += progressPerPhase;
     updateProgress(currentProgress, `Synchronization logic complete. ${filesToFetchTMDbFor.length} new items to process.`);
 
-    // 4. Fetch TMDb for new files
     if (filesToFetchTMDbFor.length > 0) {
       const tmdbProgressStart = currentProgress;
       const progressPerTMDbFetch = filesToFetchTMDbFor.length > 0 ? (100 - tmdbProgressStart) / filesToFetchTMDbFor.length : 0;
       let fetchedCount = 0;
 
-      for (const driveFile of filesToFetchTMDbFor) { // driveFile is a DriveFile object
+      for (const driveFile of filesToFetchTMDbFor) {
         updateProgress(tmdbProgressStart + (fetchedCount * progressPerTMDbFetch), `Fetching metadata for: ${driveFile.name}`);
         const tmdbMeta = await fetchTMDbDetailsForMovie(driveFile.name, driveFile.id);
-        // Add webViewLink to the new meta entry from the DriveFile object
+        // Add webViewLink from the DriveFile object to the new meta entry
         finalMetaData.push({ ...tmdbMeta, webViewLink: driveFile.webViewLink });
         fetchedCount++;
-        await new Promise(resolve => setTimeout(resolve, 350)); // TMDb Rate limit (approx 3 req/sec)
+        await new Promise(resolve => setTimeout(resolve, 350));
       }
     }
-    googleDriveFilesWithTMDbMeta = finalMetaData.sort((a,b) => (a.title || a.driveFileName).localeCompare(b.title || b.driveFileName)); // Sort alphabetically
+    googleDriveFilesWithTMDbMeta = finalMetaData.sort((a,b) => (a.title || a.driveFileName).localeCompare(b.title || b.driveFileName));
 
     updateProgress(100, "Synchronization complete!");
-    await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause to show 100%
-    showLoadingState(false); // This will hide auth/loading and show app content
+    await new Promise(resolve => setTimeout(resolve, 500));
+    showLoadingState(false);
 
     if (googleDriveFilesWithTMDbMeta.length > 0) {
       populateDashboard(googleDriveFilesWithTMDbMeta);
       setupEventListeners(googleDriveFilesWithTMDbMeta);
     } else {
       videoCategoriesContainer.innerHTML = '<p class="text-center text-gray-400 text-xl">No videos available after synchronization.</p>';
-      populateDashboard([]); // Still call to clear any old UI
-      setupEventListeners([]);
+      populateDashboard([]); setupEventListeners([]);
     }
   }
-
 
   // --- Data Population & UI ---
   function populateDashboard(videosToDisplay) {
@@ -573,7 +577,7 @@
     detailPoster.alt = videoMeta.title;
     detailTitle.textContent = videoMeta.title;
     detailYear.textContent = videoMeta.year || '';
-    detailType.textContent = videoMeta.type || (videoMeta.categories && videoMeta.categories.includes("TV Movie") ? "TV Movie" : "Movie"); // Be more specific if possible
+    detailType.textContent = videoMeta.type || (videoMeta.categories && videoMeta.categories.includes("TV Movie") ? "TV Movie" : "Movie");
     detailDuration.textContent = videoMeta.duration || '';
 
     const metaSpans = [detailYear, detailType, detailDuration];
@@ -593,6 +597,7 @@
     }
 
     detailSynopsis.textContent = videoMeta.synopsis || "No synopsis available.";
+    detailDirector.textContent = videoMeta.director || "Not available.";
     detailPlayButton.onclick = () => playVideo(videoMeta);
     detailCastList.innerHTML = videoMeta.cast && videoMeta.cast.length > 0 ? videoMeta.cast.map(m => `<li>${m.name} ${m.character ? `<span class="text-gray-500">as ${m.character}</span>` : ''}</li>`).join('') : '<li>Cast information not available.</li>';
     detailRatings.innerHTML = videoMeta.ratings && videoMeta.ratings.tmdb_vote_average ? `<div class="flex items-center"><strong class="text-white mr-1">TMDb:</strong> ${videoMeta.ratings.tmdb_vote_average}/10 <span class="text-gray-500 ml-1">(${videoMeta.ratings.tmdb_vote_count} votes)</span></div>` : '<span>Ratings not available.</span>';
@@ -616,6 +621,20 @@
     showView('movie-detail-view');
   }
 
+  // Helper function to detect iOS
+  function isIOS() {
+    return [
+              'iPad Simulator',
+              'iPhone Simulator',
+              'iPod Simulator',
+              'iPad',
+              'iPhone',
+              'iPod'
+            ].includes(navigator.platform)
+            // iPad on iOS 13 detection
+            || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+  }
+
   function playVideo(videoMeta) {
     const webViewLink = videoMeta.webViewLink; // Assumes webViewLink is always present in the meta object
     if (!webViewLink) {
@@ -623,11 +642,27 @@
       alert("Video link is missing. Cannot play.");
       return;
     }
+
+    if (isIOS()) {
+      // For iOS, open in a new tab.
+      // This gives a better chance for native player controls and reliable fullscreen.
+      const newTab = window.open(webViewLink, '_blank');
+      if (newTab) {
+        newTab.focus();
+      } else {
+        // This might happen if a pop-up blocker is very aggressive
+        alert("Could not open video in a new tab. Please check your pop-up blocker settings and try again. Link: " + webViewLink);
+      }
+      return; // Don't proceed to show the modal for iOS if opening in new tab
+    }
+
+    // For non-iOS browsers, use the embedded player in the modal
     const embedUrl = webViewLink.replace("/view", "/preview").replace("usp=sharing", "usp=embed_googleplus");
     videoPlayer.src = embedUrl;
     videoModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
   }
+
   function closeVideoPlayerModal() {
     videoModal.classList.add('hidden'); videoPlayer.src = ''; document.body.style.overflow = '';
   }
@@ -658,11 +693,10 @@
       alert("No metadata to download. Library is empty.");
       return;
     }
-    // Prepare data for saving: we want the core metadata plus essential Drive links
     const dataToSave = googleDriveFilesWithTMDbMeta.map(item => ({
       driveFileId: item.driveFileId,
-      driveFileName: item.driveFileName, // Keep original filename for reference
-      webViewLink: item.webViewLink,     // Essential for playing
+      driveFileName: item.driveFileName,
+      webViewLink: item.webViewLink,
       title: item.title,
       year: item.year,
       type: item.type,
@@ -675,7 +709,7 @@
       duration: item.duration,
       director: item.director,
       isFallback: item.isFallback,
-      lastUpdated: new Date().toISOString(), // Always update timestamp
+      lastUpdated: new Date().toISOString(),
       tmdbId: item.tmdbId
     }));
 
@@ -689,12 +723,12 @@
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    alert("meta.json prepared. Please save it and replace the one in your project folder.");
+    alert("meta.json prepared. Please save it and replace the one in your project folder (if you host this page yourself).");
   }
 
   // Initial setup
-  if (passcodeSectionEl) passcodeSectionEl.style.display = 'flex'; // Ensure passcode is visible first
-  showView('dashboard-view'); // Set default view, content will be hidden by loading states
+  if (passcodeSectionEl) passcodeSectionEl.style.display = 'flex';
+  showView('dashboard-view');
 </script>
 
 <!-- Google API Loader Scripts -->
@@ -704,8 +738,8 @@
     const scriptTag = document.createElement('script');
     scriptTag.src = 'https://accounts.google.com/gsi/client';
     scriptTag.async = true; scriptTag.defer = true;
-    scriptTag.onload = function() { if (typeof gisLoaded === 'function') gisLoaded(); else console.error("gisLoaded not defined."); };
-    scriptTag.onerror = function() { console.error("Failed to load GIS client."); showGlobalError("Failed to load Sign-In component.");};
+    scriptTag.onload = function() { if (typeof gisLoaded === 'function') gisLoaded(); else console.error("gisLoaded not defined after GIS client load."); };
+    scriptTag.onerror = function() { console.error("Failed to load GIS client."); showGlobalError("Failed to load Google Sign-In component. Please check your internet connection or ad-blockers.");};
     document.head.appendChild(scriptTag);
   }
   loadGisClientInternal();
