@@ -1,5 +1,6 @@
+
 <!DOCTYPE html>
-<html lang="en" class="bg-gray-900 text-gray-200">
+<html lang="en" class="bg-black text-white">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,8 +11,8 @@
   <style>
     body { font-family: 'Inter', sans-serif; }
     .horizontal-scroll::-webkit-scrollbar { height: 8px; }
-    .horizontal-scroll::-webkit-scrollbar-thumb { background-color: #4a5568; border-radius: 10px;}
-    .hero-gradient { background: linear-gradient(to top, rgba(17,24,39,1) 5%, rgba(17,24,39,0.7) 20%, rgba(17,24,39,0) 50%); }
+    .horizontal-scroll::-webkit-scrollbar-thumb { background-color: #4B5563; border-radius: 10px;} /* gray-600 */
+    .hero-gradient { background: linear-gradient(to top, rgba(0,0,0,1) 5%, rgba(0,0,0,0.7) 20%, rgba(0,0,0,0) 50%); }
     .text-shadow { text-shadow: 0px 2px 4px rgba(0,0,0,0.5); }
     #passcode-section, #auth-status-container { /* Styles to center them achieved with Tailwind */ }
     #app-content { display: none; }
@@ -19,20 +20,22 @@
     .view.active { display: block; }
     .animate-spin { animation: spin 1s linear infinite; } /* For spinner */
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .active-nav-link { color: #FFFFFF; font-weight: 600; }
+    #navbar-search-input.active { display: flex !important; }
   </style>
 </head>
-<body class="bg-gray-900">
+<body class="bg-black">
 
 <!-- Passcode Section -->
-<div id="passcode-section" class="fixed inset-0 z-[100] bg-gray-900 flex flex-col items-center justify-center p-4 sm:p-8">
-  <div class="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-xl border border-gray-700 w-full max-w-md">
+<div id="passcode-section" class="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-4 sm:p-8">
+  <div class="bg-gray-900 p-6 sm:p-8 rounded-xl shadow-xl border border-gray-700 w-full max-w-md">
     <!-- Lottie Animation - REPLACE THE SRC URL -->
     <div class="mx-auto mb-6 w-32 h-32 sm:w-40 sm:h-40">
       <lottie-player src="login-animation.json" background="transparent" speed="1" loop autoplay></lottie-player>
     </div>
     <h2 class="text-2xl font-bold text-white mb-6 text-center">Enter Passcode</h2>
-    <input type="password" id="passcode-input-field" class="w-full bg-gray-700 text-white px-4 py-3 mb-4 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none" placeholder="Passcode" autocomplete="off">
-    <button id="passcode-submit-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75 transition duration-300 ease-in-out">
+    <input type="password" id="passcode-input-field" class="w-full bg-gray-800 text-white px-4 py-3 mb-4 border border-gray-700 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none" placeholder="Passcode" autocomplete="off">
+    <button id="passcode-submit-button" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75 transition duration-300 ease-in-out">
       Access
     </button>
     <p id="passcode-error-message" class="text-red-400 mt-3 text-sm hidden text-center">Invalid passcode.</p>
@@ -40,17 +43,17 @@
 </div>
 
 <!-- Google Auth & Loading Section -->
-<div id="auth-status-container" class="fixed inset-0 z-[90] bg-gray-900 flex-col items-center justify-center p-4 sm:p-8 hidden">
-  <div id="auth-status" class="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-xl border border-gray-700 w-full max-w-md flex flex-col items-center">
+<div id="auth-status-container" class="fixed inset-0 z-[90] bg-black flex-col items-center justify-center p-4 sm:p-8 hidden">
+  <div id="auth-status" class="bg-gray-900 p-6 sm:p-8 rounded-xl shadow-xl border border-gray-700 w-full max-w-md flex flex-col items-center">
     <p id="status-message" class="text-lg text-gray-300 mb-4 text-center">Please sign in to view your videos.</p>
-    <button id="authorize_button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75 transition duration-300 ease-in-out" disabled>
+    <button id="authorize_button" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75 transition duration-300 ease-in-out" disabled>
       Sign In with Google
     </button>
-    <div id="loading-spinner" class="hidden mt-4 w-12 h-12 border-4 border-gray-600 border-t-purple-500 border-solid rounded-full animate-spin"></div>
+    <div id="loading-spinner" class="hidden mt-4 w-12 h-12 border-4 border-gray-800 border-t-gray-500 border-solid rounded-full animate-spin"></div>
     <div id="progress-indicator" class="w-full mt-4 hidden">
       <p id="progress-message" class="text-sm text-gray-400 mb-1 text-center">Initializing...</p>
-      <div class="w-full bg-gray-700 rounded-full h-2.5">
-        <div id="progress-bar" class="bg-purple-600 h-2.5 rounded-full" style="width: 0%"></div>
+      <div class="w-full bg-gray-800 rounded-full h-2.5">
+        <div id="progress-bar" class="bg-gray-600 h-2.5 rounded-full" style="width: 0%"></div>
       </div>
       <p id="progress-percentage" class="text-center text-xs text-gray-400 mt-1">0%</p>
     </div>
@@ -61,17 +64,44 @@
 <!-- Main App Content -->
 <div id="app-content" class="min-h-screen">
   <!-- Navbar -->
-  <nav class="fixed top-0 left-0 right-0 z-50 bg-gray-900 bg-opacity-80 backdrop-blur-md p-4 shadow-lg">
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 backdrop-blur-md p-4 shadow-lg">
     <div class="container mx-auto flex items-center justify-between">
-      <div class="text-2xl font-bold text-white">MYFLIX</div>
-      <div class="hidden md:flex items-center space-x-6">
-        <a href="#" class="text-gray-300 hover:text-white nav-link" data-view="dashboard-view">DASHBOARD</a>
+      <div id="navbar-brand-container" class="text-2xl font-bold text-white">MYFLIX</div>
+      <input type="search" id="navbar-search-input" class="hidden flex-grow max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-2 bg-gray-800 text-white px-3 py-1.5 rounded-md focus:ring-2 focus:ring-gray-500 focus:border-gray-500 outline-none text-sm" placeholder="Search movies...">
+
+      <div class="hidden md:flex items-center space-x-6 flex-grow justify-center" id="desktop-nav-links">
+        <a href="#" class="text-gray-400 hover:text-white nav-link active-nav-link" data-filter-type="HOME">HOME</a>
+        <a href="#" class="text-gray-400 hover:text-white nav-link" data-filter-type="GENRE" data-filter-value="Drama">DRAMA</a>
+        <a href="#" class="text-gray-400 hover:text-white nav-link" data-filter-type="GENRE" data-filter-value="Action">ACTION</a>
+        <a href="#" class="text-gray-400 hover:text-white nav-link" data-filter-type="GENRE" data-filter-value="Crime">CRIME</a>
+        <a href="#" class="text-gray-400 hover:text-white nav-link" data-filter-type="GENRE" data-filter-value="Romance">ROMANCE</a>
       </div>
+
       <div class="flex items-center space-x-2 sm:space-x-4">
-        <button id="download-meta-button" class="hidden bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm py-2 px-2 sm:px-3 rounded-md">Download meta.json</button>
-        <button class="text-gray-300 hover:text-white p-1 sm:p-0"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
-        <button class="text-gray-300 hover:text-white p-1 sm:p-0"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></button>
+        <button id="download-meta-button" class="hidden bg-gray-700 hover:bg-gray-600 text-white text-xs sm:text-sm py-2 px-2 sm:px-3 rounded-md">Download meta.json</button>
+        <button id="navbar-search-icon-button" class="text-gray-400 hover:text-white p-1 sm:p-0"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
+        <div class="relative">
+          <button id="user-profile-button" class="text-gray-400 hover:text-white p-1 sm:p-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          </button>
+          <div id="user-dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-gray-900 rounded-md shadow-lg py-1 z-[60] border border-gray-700">
+            <a href="#" id="logout-button" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white">Logout</a>
+          </div>
+        </div>
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-toggle-button" class="md:hidden text-gray-400 hover:text-white p-1">
+          <svg class="w-6 h-6" id="open-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+          <svg class="w-6 h-6 hidden" id="close-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
       </div>
+    </div>
+    <!-- Mobile Navigation Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-gray-900/95 backdrop-blur-sm mt-2 rounded-md shadow-lg">
+      <a href="#" class="block py-3 px-4 text-sm text-gray-300 hover:bg-gray-800 nav-link active-nav-link" data-filter-type="HOME">HOME</a>
+      <a href="#" class="block py-3 px-4 text-sm text-gray-300 hover:bg-gray-800 nav-link" data-filter-type="GENRE" data-filter-value="Drama">DRAMA</a>
+      <a href="#" class="block py-3 px-4 text-sm text-gray-300 hover:bg-gray-800 nav-link" data-filter-type="GENRE" data-filter-value="Action">ACTION</a>
+      <a href="#" class="block py-3 px-4 text-sm text-gray-300 hover:bg-gray-800 nav-link" data-filter-type="GENRE" data-filter-value="Crime">CRIME</a>
+      <a href="#" class="block py-3 px-4 text-sm text-gray-300 hover:bg-gray-800 nav-link" data-filter-type="GENRE" data-filter-value="Romance">ROMANCE</a>
     </div>
   </nav>
 
@@ -85,13 +115,14 @@
         <p id="hero-meta" class="text-base sm:text-lg mb-1 sm:mb-2 text-shadow"></p>
         <p id="hero-synopsis-short" class="text-sm sm:text-md mb-4 sm:mb-6 text-shadow line-clamp-2 sm:line-clamp-3"></p>
         <div class="flex space-x-2 sm:space-x-4">
-          <button id="hero-play-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-8 rounded-md text-base sm:text-lg">PLAY</button>
-          <button id="hero-add-list-button" class="bg-gray-700 bg-opacity-70 hover:bg-gray-600 text-white p-2 sm:p-3 rounded-md border border-gray-500">
+          <button id="hero-play-button" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 sm:py-3 sm:px-8 rounded-md text-base sm:text-lg">PLAY</button>
+          <button id="hero-add-list-button" class="bg-gray-800 bg-opacity-70 hover:bg-gray-700 text-white p-2 sm:p-3 rounded-md border border-gray-700">
             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
           </button>
         </div>
       </div>
     </section>
+    <p id="filter-status-message" class="text-center text-gray-400 my-4 text-lg hidden"></p>
     <div id="video-categories-container" class="container mx-auto px-4 py-8 space-y-8 sm:space-y-10">
       <!-- Categories will be dynamically inserted here -->
     </div>
@@ -99,9 +130,9 @@
 
   <!-- Movie Detail View -->
   <div id="movie-detail-view" class="view container mx-auto px-4 py-8 pt-24 space-y-8 sm:space-y-10">
-    <button id="back-to-dashboard" class="mb-4 sm:mb-6 text-purple-400 hover:text-purple-300 flex items-center">
+    <button id="back-to-dashboard" class="mb-4 sm:mb-6 text-gray-400 hover:text-gray-300 flex items-center">
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-      Back to Dashboard
+      Back to Home
     </button>
     <div class="flex flex-col md:flex-row gap-6 sm:gap-8">
       <div class="w-full md:w-1/3 flex-shrink-0">
@@ -115,7 +146,7 @@
           <span id="detail-duration"></span>
         </div>
         <p id="detail-synopsis" class="mb-4 sm:mb-6 text-base sm:text-lg leading-relaxed"></p>
-        <button id="detail-play-button" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 sm:py-3 sm:px-10 rounded-md text-base sm:text-lg mb-6 sm:mb-8">PLAY VIDEO</button>
+        <button id="detail-play-button" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 sm:py-3 sm:px-10 rounded-md text-base sm:text-lg mb-6 sm:mb-8">PLAY VIDEO</button>
         <div class="mb-4 sm:mb-6"><h3 class="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">Cast</h3><ul id="detail-cast-list" class="list-none space-y-1 text-sm sm:text-base text-gray-400"></ul></div>
         <div><h3 class="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">Ratings</h3><div id="detail-ratings" class="flex flex-wrap space-x-2 sm:space-x-4 text-sm sm:text-base text-gray-400"></div></div>
       </div>
@@ -124,8 +155,8 @@
   </div>
 
   <!-- Video Player Modal (Used for Desktop) -->
-  <div id="video-modal" class="fixed inset-0 z-[1000] hidden flex items-center justify-center bg-black bg-opacity-80 p-2 sm:p-4">
-    <div class="relative bg-gray-800 rounded-xl shadow-2xl p-1 md:p-2 w-full max-w-4xl max-h-[90vh] overflow-hidden">
+  <div id="video-modal" class="fixed inset-0 z-[1000] hidden flex items-center justify-center bg-black bg-opacity-90 p-2 sm:p-4">
+    <div class="relative bg-gray-900 rounded-xl shadow-2xl p-1 md:p-2 w-full max-w-4xl max-h-[90vh] overflow-hidden">
       <button id="close-modal" class="absolute top-2 right-2 md:top-3 md:right-3 text-gray-400 hover:text-white text-3xl font-bold focus:outline-none z-10">×</button>
       <div class="relative" style="padding-bottom: 56.25%;">
         <iframe id="video-player" class="absolute top-0 left-0 w-full h-full rounded-lg" src="" frameborder="0"
@@ -159,6 +190,7 @@
   let gis;
   let googleDriveFilesWithTMDbMeta = [];
   let allDriveFilesRaw = [];
+  let currentFilter = { type: 'HOME', value: '' }; // type: 'HOME', 'GENRE', 'SEARCH'
 
   // DOM Elements
   const appContentEl = document.getElementById('app-content');
@@ -198,7 +230,21 @@
   const progressMessageEl = document.getElementById('progress-message');
   const progressBarEl = document.getElementById('progress-bar');
   const progressPercentageEl = document.getElementById('progress-percentage');
-  const downloadMetaButtonEl = document.getElementById('download-meta-button');
+  const downloadMetaButtonEl = document.getElementById('download-meta-button'); // Still referenced, keep it, though hidden by default
+
+  const userProfileButtonEl = document.getElementById('user-profile-button');
+  const userDropdownMenuEl = document.getElementById('user-dropdown-menu');
+  const logoutButtonEl = document.getElementById('logout-button');
+  const navbarSearchIconButtonEl = document.getElementById('navbar-search-icon-button');
+  const navbarSearchInputEl = document.getElementById('navbar-search-input');
+  const navbarBrandContainerEl = document.getElementById('navbar-brand-container');
+  const filterStatusMessageEl = document.getElementById('filter-status-message');
+  const mobileMenuToggleButtonEl = document.getElementById('mobile-menu-toggle-button');
+  const mobileMenuEl = document.getElementById('mobile-menu');
+  const openMenuIconEl = document.getElementById('open-menu-icon');
+  const closeMenuIconEl = document.getElementById('close-menu-icon');
+  const allNavLinkEls = document.querySelectorAll('.nav-link');
+
 
   // --- UI Functions ---
   function showView(viewId) {
@@ -252,11 +298,6 @@
     const enteredPasscode = passcodeInputField.value;
     passcodeErrorEl.classList.add('hidden');
     if (!enteredPasscode) { passcodeErrorEl.textContent = 'Passcode cannot be empty.'; passcodeErrorEl.classList.remove('hidden'); return; }
-
-    // This warning logic might be slightly off from original intent if STORED_PASSCODE_HASH was changed
-    // from the "password" example but DEFAULT_DEV_PASSCODE_HASH wasn't updated to match it.
-    // The primary check is that STORED_PASSCODE_HASH should not be the common "password" hash.
-    // The provided hashes are not for "password", so this warning should be fine unless they are truly a default.
     if (STORED_PASSCODE_HASH === DEFAULT_DEV_PASSCODE_HASH) {
       passcodeErrorEl.textContent = 'Developer: Default passcode hash is in use. Please change STORED_PASSCODE_HASH.';
       passcodeErrorEl.classList.remove('hidden');
@@ -318,14 +359,41 @@
         showGlobalError(errMsg); authorizeButton.textContent = 'Sign In'; authorizeButton.disabled = false; loadingSpinner.classList.add('hidden');
         return;
       }
-      downloadMetaButtonEl.classList.remove('hidden');
+      // downloadMetaButtonEl.classList.remove('hidden'); // User requested this to be hidden
       await loadAndSynchronizeData();
     };
     if (gapi.client.getToken() === null) tokenClient.requestAccessToken({prompt: 'consent'});
     else tokenClient.requestAccessToken({prompt: ''});
   }
 
-  // --- TMDb Fetching Logic ---
+  function handleSignOut() {
+    const token = gapi.client.getToken();
+    if (token) {
+      gis.revoke(token.access_token, () => {
+        gapi.client.setToken(null);
+      });
+    }
+    googleDriveFilesWithTMDbMeta = [];
+    allDriveFilesRaw = [];
+
+    appContentEl.style.display = 'none';
+    passcodeSectionEl.style.display = 'flex';
+    passcodeInputField.value = '';
+    authStatusContainerEl.style.display = 'hidden';
+    authorizeButton.disabled = true;
+    authorizeButton.textContent = 'Sign In with Google';
+    statusMessage.textContent = 'Please sign in to view your videos.';
+    errorMessage.classList.add('hidden');
+    userDropdownMenuEl.classList.add('hidden');
+    videoCategoriesContainer.innerHTML = '';
+    heroSection.style.display = 'none';
+    filterStatusMessageEl.classList.add('hidden');
+    currentFilter = { type: 'HOME', value: '' };
+    updateActiveNavLink();
+    console.log('User signed out.');
+  }
+
+  // --- TMDb Fetching Logic (remains the same) ---
   async function fetchTMDbDetailsForMovie(movieNameFromDrive, driveFileId) {
     const cleanNameForSearch = movieNameFromDrive
             .replace(/\.(mkv|mp4|avi|mov|wmv|flv|webm)$/i, '')
@@ -361,7 +429,7 @@
       title: searchName || movieNameFromDrive.split(/\.(mkv|mp4|avi|mov|wmv)/i)[0].trim(),
       year: yearForSearch ? parseInt(yearForSearch) : null,
       type: "Movie", categories: ["Uncategorized"],
-      posterUrl: `https://placehold.co/300x450/1f2937/4b5563?text=${encodeURIComponent((searchName || movieNameFromDrive).substring(0,15))}`,
+      posterUrl: `https://placehold.co/300x450/000000/FFFFFF?text=${encodeURIComponent((searchName || movieNameFromDrive).substring(0,15))}`,
       heroImageUrl: null, synopsis: errMsg, cast: [], ratings: {}, duration: null, director: null,
       isFallback: true, lastUpdated: new Date().toISOString(), tmdbId: null
     });
@@ -451,11 +519,10 @@
     updateProgress(currentProgress, `${allDriveFilesRaw.length} item(s) found in Drive folder.`);
 
     if (allDriveFilesRaw.length === 0 && localMeta.length === 0) {
-      videoCategoriesContainer.innerHTML = '<p class="text-center text-gray-400 text-xl">No videos found in Drive or local metadata.</p>';
       showLoadingState(false);
       appContentEl.style.display = 'block';
-      populateDashboard([]);
-      setupEventListeners([]);
+      applyCurrentFilter(); // Will show empty state
+      setupEventListeners();
       return;
     }
 
@@ -495,7 +562,7 @@
         const tmdbMeta = await fetchTMDbDetailsForMovie(driveFile.name, driveFile.id);
         finalMetaData.push({ ...tmdbMeta, webViewLink: driveFile.webViewLink });
         fetchedCount++;
-        await new Promise(resolve => setTimeout(resolve, 350));
+        await new Promise(resolve => setTimeout(resolve, 350)); // Rate limit TMDb calls
       }
     }
     googleDriveFilesWithTMDbMeta = finalMetaData.sort((a,b) => (a.title || a.driveFileName).localeCompare(b.title || b.driveFileName));
@@ -504,15 +571,55 @@
     await new Promise(resolve => setTimeout(resolve, 500));
     showLoadingState(false);
 
-    if (googleDriveFilesWithTMDbMeta.length > 0) {
-      populateDashboard(googleDriveFilesWithTMDbMeta);
-      setupEventListeners(googleDriveFilesWithTMDbMeta);
-    } else {
-      videoCategoriesContainer.innerHTML = '<p class="text-center text-gray-400 text-xl">No videos available after synchronization.</p>';
-      populateDashboard([]);
-      setupEventListeners([]);
-    }
+    applyCurrentFilter(); // Initially show HOME
+    setupEventListeners();
   }
+
+
+  // --- Filtering and UI Update Logic ---
+  function applyCurrentFilter() {
+    let videosToDisplay = [...googleDriveFilesWithTMDbMeta];
+    let statusText = "";
+
+    if (currentFilter.type === 'GENRE') {
+      videosToDisplay = videosToDisplay.filter(video =>
+              video.categories && video.categories.includes(currentFilter.value)
+      );
+      statusText = `Showing ${currentFilter.value} movies`;
+    } else if (currentFilter.type === 'SEARCH' && currentFilter.value) {
+      const searchTerm = currentFilter.value.toLowerCase();
+      videosToDisplay = videosToDisplay.filter(video =>
+              (video.title && video.title.toLowerCase().includes(searchTerm)) ||
+              (video.driveFileName && video.driveFileName.toLowerCase().includes(searchTerm))
+      );
+      statusText = `Search results for "${currentFilter.value}"`;
+    } else { // HOME or empty search
+      statusText = "All Movies"; // Or keep it hidden for home
+    }
+
+    if (statusText && currentFilter.type !== 'HOME') {
+      filterStatusMessageEl.textContent = statusText;
+      filterStatusMessageEl.classList.remove('hidden');
+    } else {
+      filterStatusMessageEl.classList.add('hidden');
+    }
+
+    populateDashboard(videosToDisplay);
+    updateActiveNavLink();
+    showView('dashboard-view');
+  }
+
+  function updateActiveNavLink() {
+    allNavLinkEls.forEach(link => {
+      link.classList.remove('active-nav-link');
+      const type = link.dataset.filterType;
+      const value = link.dataset.filterValue;
+      if (type === currentFilter.type && (type === 'HOME' || value === currentFilter.value)) {
+        link.classList.add('active-nav-link');
+      }
+    });
+  }
+
 
   // --- Data Population & UI ---
   function populateDashboard(videosToDisplay) {
@@ -533,7 +640,13 @@
 
     videoCategoriesContainer.innerHTML = '';
     if (videosToDisplay.length === 0) {
-      videoCategoriesContainer.innerHTML = '<p class="text-center text-gray-400 text-xl mt-10">Your library is currently empty.</p>';
+      let emptyMessage = "Your library is currently empty.";
+      if (currentFilter.type === 'GENRE') {
+        emptyMessage = `No movies found in the ${currentFilter.value} category.`;
+      } else if (currentFilter.type === 'SEARCH' && currentFilter.value) {
+        emptyMessage = `No movies found matching "${currentFilter.value}".`;
+      }
+      videoCategoriesContainer.innerHTML = `<p class="text-center text-gray-400 text-xl mt-10">${emptyMessage}</p>`;
       return;
     }
 
@@ -546,8 +659,22 @@
       });
     });
 
+    // Only show categories relevant to the current filter or all if HOME/SEARCH
+    let relevantCategoryNames = Object.keys(categories);
+    if (currentFilter.type === 'GENRE' && categories[currentFilter.value]) {
+      const catSection = document.createElement('section');
+      catSection.className = 'category-section';
+      catSection.innerHTML = `<h2 class="text-2xl font-semibold text-white mb-3 sm:mb-4">${currentFilter.value} Movies</h2>
+                           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+                               ${videosToDisplay.map(videoMeta => createVideoPosterCard(videoMeta, true)).join('')}
+                           </div>`;
+      videoCategoriesContainer.appendChild(catSection);
+      return;
+    }
+
+
     const categoryOrder = ["Action", "Adventure", "Animation", "Comedy", "Crime", "Documentary", "Drama", "Family", "Fantasy", "History", "Horror", "Music", "Mystery", "Romance", "Science Fiction", "TV Movie", "Thriller", "War", "Western", "General", "Uncategorized"];
-    const sortedCategoryNames = Object.keys(categories).sort((a, b) => {
+    const sortedCategoryNames = relevantCategoryNames.sort((a, b) => {
       const indexA = categoryOrder.indexOf(a); const indexB = categoryOrder.indexOf(b);
       if (indexA === -1 && indexB === -1) return a.localeCompare(b); if (indexA === -1) return 1; if (indexB === -1) return -1; return indexA - indexB;
     });
@@ -558,23 +685,27 @@
       catSection.className = 'category-section';
       catSection.innerHTML = `<h2 class="text-2xl font-semibold text-white mb-3 sm:mb-4">${catName}</h2>
                         <div class="horizontal-scroll flex space-x-3 md:space-x-4 overflow-x-auto pb-4 -mb-4">
-                            ${categories[catName].map(videoMeta => createVideoPosterCard(videoMeta)).join('')}
+                            ${categories[catName].map(videoMeta => createVideoPosterCard(videoMeta, false)).join('')}
                         </div>`;
       videoCategoriesContainer.appendChild(catSection);
     });
   }
 
-  function createVideoPosterCard(videoMeta) {
+  function createVideoPosterCard(videoMeta, isGridItem = false) {
     const title = videoMeta.title || videoMeta.driveFileName;
-    const poster = videoMeta.posterUrl || `https://placehold.co/300x450/1f2937/4b5563?text=${encodeURIComponent(title.substring(0,20))}`;
-    return `<div class="video-poster-card bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-200 cursor-pointer w-32 sm:w-36 md:w-48 flex-shrink-0" data-drive-id="${videoMeta.driveFileId}">
-              <img src="${poster}" alt="${title}" class="w-full h-auto object-cover aspect-[2/3]" onerror="this.src='https://placehold.co/300x450/1f2937/4b5563?text=No+Poster'; this.onerror=null;">
+    const poster = videoMeta.posterUrl || `https://placehold.co/300x450/000000/FFFFFF?text=${encodeURIComponent(title.substring(0,20))}`;
+    const cardClass = isGridItem
+            ? `video-poster-card bg-gray-900 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-200 cursor-pointer w-full`
+            : `video-poster-card bg-gray-900 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-200 cursor-pointer w-32 sm:w-36 md:w-48 flex-shrink-0`;
+
+    return `<div class="${cardClass}" data-drive-id="${videoMeta.driveFileId}">
+              <img src="${poster}" alt="${title}" class="w-full h-auto object-cover aspect-[2/3]" onerror="this.src='https://placehold.co/300x450/000000/FFFFFF?text=No+Poster'; this.onerror=null;">
             </div>`;
   }
 
   function populateMovieDetailView(videoMeta) {
-    if (!videoMeta) { console.error("Detail view: Missing data"); showView('dashboard-view'); return; }
-    detailPoster.src = videoMeta.posterUrl || `https://placehold.co/500x750/1f2937/4b5563?text=No+Poster`;
+    if (!videoMeta) { console.error("Detail view: Missing data"); applyCurrentFilter(); return; }
+    detailPoster.src = videoMeta.posterUrl || `https://placehold.co/500x750/000000/FFFFFF?text=No+Poster`;
     detailPoster.alt = videoMeta.title;
     detailTitle.textContent = videoMeta.title;
     detailYear.textContent = videoMeta.year || '';
@@ -608,7 +739,7 @@
             v.driveFileId !== videoMeta.driveFileId &&
             ( (v.isFallback && primaryCategoryForRelated === "Uncategorized") ||
                     (v.categories && v.categories.includes(primaryCategoryForRelated)) )
-    ).slice(0,8); // Show fewer related on mobile to avoid too much scrolling
+    ).slice(0,8);
 
     if(relatedVideos.length > 0) {
       const section = document.createElement('section');
@@ -621,10 +752,7 @@
     showView('movie-detail-view');
   }
 
-  // Helper function to detect mobile devices
-  function isMobileDevice() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  }
+  function isMobileDevice() { return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent); }
 
   function playVideo(videoMeta) {
     const webViewLink = videoMeta.webViewLink;
@@ -634,8 +762,18 @@
       return;
     }
 
+    // Note on MKV and audio:
+    // Google Drive's embedded player and browser native video players (used on mobile)
+    // may have limitations with some MKV files, especially regarding multiple audio tracks
+    // or specific audio codecs (e.g., DTS, TrueHD).
+    // If you experience audio issues, consider re-encoding videos to a more universally
+    // compatible format like MP4 with AAC audio.
+    if (videoMeta.driveFileName && videoMeta.driveFileName.toLowerCase().endsWith('.mkv')) {
+      console.warn(`Playing MKV file: ${videoMeta.driveFileName}. Be aware of potential audio track/codec limitations with Google Drive's player or browser native playback.`);
+      // Optional: alert("Playing an MKV file. If you encounter audio problems, note that Google Drive's player may have limitations with multiple audio tracks or certain codecs in MKV containers.");
+    }
+
     if (isMobileDevice()) {
-      // For all mobile devices, open the Google Drive webViewLink in a new tab.
       const newTab = window.open(webViewLink, '_blank');
       if (newTab) {
         newTab.focus();
@@ -645,22 +783,38 @@
       return;
     }
 
-    // For non-mobile (desktop) browsers, use the embedded player in the modal
+    // For desktop, use the embed URL
     const embedUrl = webViewLink.replace("/view", "/preview").replace("usp=sharing", "usp=embed_googleplus");
     videoPlayer.src = embedUrl;
     videoModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
   }
 
-  function closeVideoPlayerModal() {
-    videoModal.classList.add('hidden'); videoPlayer.src = ''; document.body.style.overflow = '';
-  }
+  function closeVideoPlayerModal() { videoModal.classList.add('hidden'); videoPlayer.src = ''; document.body.style.overflow = ''; }
 
   // --- Event Listeners ---
-  function setupEventListeners(videosForEvents) {
-    document.querySelectorAll('.nav-link[data-view="dashboard-view"]').forEach(link => {
-      link.addEventListener('click', (e) => { e.preventDefault(); showView('dashboard-view'); });
+  function setupEventListeners() {
+    allNavLinkEls.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const type = e.currentTarget.dataset.filterType;
+        const value = e.currentTarget.dataset.filterValue || '';
+        currentFilter = { type, value };
+        navbarSearchInputEl.value = ''; // Clear search on nav link click
+        if (navbarSearchInputEl.classList.contains('active')) { // Hide search if open
+          navbarSearchInputEl.classList.remove('active');
+          navbarSearchInputEl.classList.add('hidden');
+          navbarBrandContainerEl.classList.remove('hidden');
+        }
+        applyCurrentFilter();
+        if (mobileMenuEl.classList.contains('md:hidden') === false && !mobileMenuEl.classList.contains('hidden')) { // If mobile menu is open
+          mobileMenuEl.classList.add('hidden');
+          openMenuIconEl.classList.remove('hidden');
+          closeMenuIconEl.classList.add('hidden');
+        }
+      });
     });
+
     document.body.addEventListener('click', (e) => {
       const card = e.target.closest('.video-poster-card');
       if (card) {
@@ -669,19 +823,77 @@
         if (selectedVideo) populateMovieDetailView(selectedVideo);
       }
     });
-    backToDashboardButton.addEventListener('click', () => showView('dashboard-view'));
+    backToDashboardButton.addEventListener('click', () => applyCurrentFilter()); // Go back to current filter state
 
     closeModalButton.addEventListener('click', closeVideoPlayerModal);
     videoModal.addEventListener('click', (e) => { if (e.target === videoModal) closeVideoPlayerModal(); });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !videoModal.classList.contains('hidden')) {
-        closeVideoPlayerModal();
+      if (e.key === 'Escape' && !videoModal.classList.contains('hidden')) closeVideoPlayerModal();
+      if (e.key === 'Escape' && navbarSearchInputEl.classList.contains('active')) {
+        navbarSearchInputEl.classList.remove('active');
+        navbarSearchInputEl.classList.add('hidden');
+        navbarBrandContainerEl.classList.remove('hidden');
+        if (currentFilter.type === 'SEARCH') { // If search was active, revert to home or previous non-search
+          currentFilter = { type: 'HOME', value: '' };
+        }
+        applyCurrentFilter();
       }
     });
-    downloadMetaButtonEl.addEventListener('click', downloadUpdatedMetaJson);
+    downloadMetaButtonEl.addEventListener('click', downloadUpdatedMetaJson); // Kept for potential future use
+
+    // User Profile Dropdown
+    userProfileButtonEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userDropdownMenuEl.classList.toggle('hidden');
+    });
+    logoutButtonEl.addEventListener('click', (e) => {
+      e.preventDefault();
+      handleSignOut();
+    });
+    document.addEventListener('click', (e) => { // Close dropdown if clicked outside
+      if (!userProfileButtonEl.contains(e.target) && !userDropdownMenuEl.contains(e.target)) {
+        userDropdownMenuEl.classList.add('hidden');
+      }
+    });
+
+    // Search
+    navbarSearchIconButtonEl.addEventListener('click', () => {
+      navbarBrandContainerEl.classList.toggle('hidden');
+      navbarSearchInputEl.classList.toggle('hidden');
+      navbarSearchInputEl.classList.toggle('active');
+      if (navbarSearchInputEl.classList.contains('active')) {
+        navbarSearchInputEl.focus();
+      } else { // If search was closed without searching
+        if (navbarSearchInputEl.value !== '') { // If there was text, clear and apply filter
+          navbarSearchInputEl.value = '';
+          currentFilter = { type: 'HOME', value: ''}; // Or revert to previous non-search filter
+          applyCurrentFilter();
+        }
+      }
+    });
+    navbarSearchInputEl.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const searchTerm = navbarSearchInputEl.value.trim();
+        if (searchTerm) {
+          currentFilter = { type: 'SEARCH', value: searchTerm };
+        } else { // Empty search reverts to HOME
+          currentFilter = { type: 'HOME', value: '' };
+        }
+        applyCurrentFilter();
+        // Keep search bar open after search
+      }
+    });
+
+    // Mobile Menu Toggle
+    mobileMenuToggleButtonEl.addEventListener('click', () => {
+      mobileMenuEl.classList.toggle('hidden');
+      openMenuIconEl.classList.toggle('hidden');
+      closeMenuIconEl.classList.toggle('hidden');
+    });
+
   }
 
-  // --- Download meta.json ---
+  // --- Download meta.json (remains the same) ---
   function downloadUpdatedMetaJson() {
     if (googleDriveFilesWithTMDbMeta.length === 0) {
       alert("No metadata to download. Library is empty.");
@@ -703,7 +915,7 @@
       duration: item.duration,
       director: item.director,
       isFallback: item.isFallback,
-      lastUpdated: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(), // Update last updated timestamp
       tmdbId: item.tmdbId
     }));
 
@@ -722,7 +934,7 @@
 
   // Initial setup
   if (passcodeSectionEl) passcodeSectionEl.style.display = 'flex';
-  showView('dashboard-view');
+  showView('dashboard-view'); // dashboard view is the main view for filters
 </script>
 
 <!-- Google API Loader Scripts -->
