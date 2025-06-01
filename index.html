@@ -89,7 +89,8 @@
           </div>
         </div>
         <!-- Mobile Menu Button -->
-        <button id="mobile-menu-toggle-button" class="md:hidden text-gray-400 hover:text-white p-1">
+        <button id="mobile-menu-toggle-button" class="md:hidden text-gray-400 hover:text-white p-1" aria-controls="mobile-menu" aria-expanded="false">
+          <span class="sr-only">Open main menu</span>
           <svg class="w-6 h-6" id="open-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
           <svg class="w-6 h-6 hidden" id="close-menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
@@ -807,10 +808,12 @@
           navbarBrandContainerEl.classList.remove('hidden');
         }
         applyCurrentFilter();
-        if (mobileMenuEl.classList.contains('md:hidden') === false && !mobileMenuEl.classList.contains('hidden')) { // If mobile menu is open
+        // If the mobile menu is currently open (does not have 'hidden' class), close it.
+        if (!mobileMenuEl.classList.contains('hidden')) {
           mobileMenuEl.classList.add('hidden');
           openMenuIconEl.classList.remove('hidden');
           closeMenuIconEl.classList.add('hidden');
+          mobileMenuToggleButtonEl.setAttribute('aria-expanded', 'false');
         }
       });
     });
@@ -886,6 +889,8 @@
 
     // Mobile Menu Toggle
     mobileMenuToggleButtonEl.addEventListener('click', () => {
+      const isExpanded = mobileMenuToggleButtonEl.getAttribute('aria-expanded') === 'true' || false;
+      mobileMenuToggleButtonEl.setAttribute('aria-expanded', !isExpanded);
       mobileMenuEl.classList.toggle('hidden');
       openMenuIconEl.classList.toggle('hidden');
       closeMenuIconEl.classList.toggle('hidden');
